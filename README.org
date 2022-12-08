@@ -1,4 +1,4 @@
-* MyNodeBook 📓
+* NodeBook 📓
 Stay hungry. Stay foolish.
 ** Table of contents
 [[https://github.com/CnLzh/MyNodeBook/tree/main/LeetCode][LeetCode]]
