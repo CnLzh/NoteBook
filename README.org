@@ -1,4 +1,0 @@
-* NoteBook 📓
-Learning notes.
-** Table of contents
-[[https://github.com/CnLzh/LeetCodeNotes/tree/main][LeetCode Solutions]]
