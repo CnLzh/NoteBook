@@ -1,3 +1,0 @@
-* LeetCode
-LeetCode algorithm notes.
-** Table of contents
