@@ -6,7 +6,7 @@ public:
 			std::sort(it.begin(), it.end(), [](int a, int b) {return a > b; });
 
 		std::sort(cuboids.begin(), cuboids.end(), [](vector<int>& a, vector<int>& b) {
-            return a[0] + a[1] + a[2] > b[0] + b[1] + b[2];
+			return a[0] + a[1] + a[2] > b[0] + b[1] + b[2];
 			});
 
 		vector<int>v;
