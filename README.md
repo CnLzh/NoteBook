@@ -5,4 +5,4 @@ Learning Notes.
 
 [Git Notes](https://github.com/CnLzh/NoteBook/tree/main/GitNotes)
 
-[C++ Template MetaProgramming](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes):w
+[C++ Template MetaProgramming](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes)
