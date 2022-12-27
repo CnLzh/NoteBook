@@ -1,4 +1,4 @@
-# Git Note
+# Git Notes
 Git Learning Notes. :electron:
 
 ## Table Of Contents
