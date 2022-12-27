@@ -75,7 +75,7 @@ S<Bar2>();  // error: 形参列表不匹配
 
 ```
 
-一个模板可以声明多个形参，一半情况下，可以声明一个变长的形参列表，成为"template parameter pack"，这个变长形参列表可以接收0个或多个非类型常量，类型，模板作为模板实参。变长形参列表必须出现在所有模板形参的最后。
+一个模板可以声明多个形参，一般情况下，可以声明一个变长的形参列表，称为"template parameter pack"，这个变长形参列表可以接收0个或多个非类型常量，类型，模板作为模板实参。变长形参列表必须出现在所有模板形参的最后。
 
 ```cpp
 template <typename T, typename U> struct TemplateWithTwoParameters {};
