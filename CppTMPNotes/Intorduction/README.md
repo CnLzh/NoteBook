@@ -1,4 +1,4 @@
-# 1.Intorduction
+# 1. Intorduction
 
 ## 1.1 元编程
 Meta这个词有着"更高一层抽象"的意思。例如在数据结构中提到的MetaData通常指"描述数据的数据"。
