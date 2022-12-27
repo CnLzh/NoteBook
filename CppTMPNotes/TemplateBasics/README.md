@@ -31,7 +31,7 @@ template<template <typenmae T> typename Tmpl> TemplateTemplateParameter {};
 ```
 
 其中，非类型的形参接收一个确定类型的常量作为实参(Arguments)。一般情况下，非类型模板形参必须是结构化类型(structural type)的，主要包括:
-- 整形,如int, char, long
+- 整形
 - enum类型
 - 指针和引用类型
 - 浮点数类型和字面量类型
