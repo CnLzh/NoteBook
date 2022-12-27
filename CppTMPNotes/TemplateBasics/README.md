@@ -36,7 +36,7 @@ template<template <typenmae T> typename Tmpl> TemplateTemplateParameter {};
 - 指针和引用类型
 - 浮点数类型和字面量类型
 
-需要注意的是，非类型模板实参必须是常量，因为模板是在编译器被展开的，在这个阶段只有常量，没有变量。
+需要注意的是，非类型模板实参必须是常量，因为模板是在编译期被展开的，在这个阶段只有常量，没有变量。
 
 ```cpp
 template <float &f>
