@@ -164,6 +164,7 @@ struct binary {
 template <> struct binary<0> {
   static constexpr int value = 0;
 };
+
 std::cout << binary<101>::value << std::endl;
 ```
 
