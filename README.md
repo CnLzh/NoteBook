@@ -1,6 +1,6 @@
 # NoteBook :notebook:
 Learning Notes.
 ## Table Of Contents
-[LeetCode Solutions](https://github.com/CnLzh/NoteBook/tree/main/LeetCode)
+[LeetCode Solutions](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes)
 
-[Git Notes](https://github.com/CnLzh/NoteBook/tree/main/Git)
+[Git Notes](https://github.com/CnLzh/NoteBook/tree/main/GitNotes)
