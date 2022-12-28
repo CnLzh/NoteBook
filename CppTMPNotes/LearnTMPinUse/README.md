@@ -294,7 +294,7 @@ template <typename T, std::size_t I>
 struct extent<T[I], 0> : integral_constant<std::size_t, I> {};
 
 template <typename T, std::size_t I, unsigned N>
-struct extent<T[I], N> : entent<T, N-1> {};
+struct extent<T[I], N> : extent<T, N-1> {};
 ```
 
 extent共有4个偏特化，前两个匹配不定长数组，后两个匹配定长数组，主模板匹配非数组类型。
