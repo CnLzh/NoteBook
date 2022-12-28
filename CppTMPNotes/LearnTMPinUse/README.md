@@ -24,8 +24,8 @@ is_reference包含一个主模板和两个偏特化，接受一个类型T作为�
 
 ```cpp
 template <typename T> struct remove_reference { using type = T; };      // #1
-template <typename T&> struct remove_reference { using type = T; };     // #2
-template <typename T&&> struct remove_reference { using type = T; };    // #3
+template <typename T> struct remove_reference<T&> { using type = T; };     // #2
+template <typename T> struct remove_reference<T&&> { using type = T; };    // #3
 
 // case 1:
 int&& i = 0;
