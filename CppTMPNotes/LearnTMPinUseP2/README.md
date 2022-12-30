@@ -23,7 +23,7 @@ struct enable_if<false, T> {};
 
 template <typename T> enable_if_t<is_integral_v<T>> foo(T) {};  // #1
 
-template <typename T> enable_if<is_floating_point_v<T>> foo(T) {};  //#2
+template <typename T> enable_if_t<is_floating_point_v<T>> foo(T) {};  //#2
 
 foo(1);
 foo(1.0f);
@@ -40,7 +40,7 @@ foo(1.0f);
 ```cpp
 template <typename T> struct S{
     template <typename U> static enable_if_t<is_same_v<T, int>> foo(U) {};  // #1
-    template <typename U> static enable_if<!is_same_v<T, int>> foo(U) {};   // #2
+    template <typename U> static enable_if_t<!is_same_v<T, int>> foo(U) {};   // #2
 };
 
 S<int>::foo(1);
@@ -55,9 +55,9 @@ template <typename... Args>
 struct always_true : true_type {};
 
 template <typename T> struct S{
-    template <typename U> static enable_if<always_true_v<U> && is_same_v<T, iont>> foo(U) {};
+    template <typename U> static enable_if<always_true_v<U> && is_same_v<T, int>> foo(U) {};
 
-    template <typename U> static enable_if<always_true_v<U> && !is_same_v<T, iont>> foo(U) {};
+    template <typename U> static enable_if<always_true_v<U> && !is_same_v<T, int>> foo(U) {};
 };
 
 S<int>::foo(1);
