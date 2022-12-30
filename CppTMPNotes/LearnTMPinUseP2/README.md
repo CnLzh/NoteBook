@@ -273,3 +273,192 @@ std::cout << get<1>(t) << std::endl;
 
 ### 5.3.2 A Universal json::dumps
 接下来我们实现一个通用的json::dumps，它支持将嵌套的STL容器序列化为json字符串。
+
+实现原理是使用函数模板重载的递归展开，并且通过SFINAE控制模板重载。
+
+首先，对于内置的数值类型，直接转`string`返回，这里通过`is_one_of`判定参数类型是不是内置的数值类型:
+
+```cpp
+template <typename T>
+std::enable_if_t<is_one_of_v<std::decay_t<T>, int, long, long long, unsigned, unsigned long, unsigned long long, float, double, long double>, std::string> dumps(const T& value){
+    return std::to_string(value);
+}
+```
+
+`std::decay`也是一个Metafunction，返回T的原始类型，无论T是引用类型，还是CV类型，都能保证用原始类型和后面的参数进行比较。通过`std::enable_if`，当dumps参数的类型不是这些数值类型时，这个模板从重载集中剔除。
+
+然后对于`std::string`和其他的内置类型，可能要做一些特殊处理:
+
+```cpp
+// string, char
+template <typename T>
+std::enable_if_t<is_one_of_v<std::decay_t<T>, std::string, char>, std::string>
+dumps(const T &obj) {
+  std::stringstream ss;
+  ss << '"' << obj << '"';
+  return ss.str();
+}
+
+// char *
+static inline std::string dumps(const char *s) {
+  return json::dumps(std::string(s));
+}
+
+// void, nullptr
+template <typename T>
+std::
+    enable_if_t<is_one_of_v<std::decay_t<T>, void, std::nullptr_t>, std::string>
+    dumps(const T &) {
+  return "null";
+}
+
+// bool
+template <typename T>
+std::enable_if_t<is_one_of_v<std::decay_t<T>, bool>, std::string>
+dumps(const T &value) {
+  return value ? "true" : "false";
+}
+```
+
+下面，对于STL中的容器，我们要递归调用dumps。这里用到了`is_instantiation_of`来判定函数参数是不是容器实例:
+
+```cpp
+template <template <typename...> class Tmpl, typename... Args>
+std::enable_if_t<
+    is_instantiation_of_v<Tmpl<Args...>, std::vector> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::list> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::deque> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::forward_list> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::set> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::multiset> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::unordered_set> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::unordered_multiset>,
+    std::string>
+    dumps(const Tmpl<Args...>& obj) {
+    std::stringstream ss;
+    ss << "[";
+    for (auto itr = obj.begin(); itr != obj.end();) {
+        ss << dumps(*itr);
+        if (++itr != obj.end()) ss << ", ";
+    }
+    ss << "]";
+    return ss.str();
+}
+
+// map, multimap, unordered_map, unordered_multimap
+template <template <typename...> class Tmpl, typename... Args>
+std::enable_if_t<
+    is_instantiation_of_v<Tmpl<Args...>, std::map> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::multimap> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::unordered_map> ||
+    is_instantiation_of_v<Tmpl<Args...>, std::unordered_multimap>,
+    std::string>
+    dumps(const Tmpl<Args...>& obj) {
+    std::stringstream ss;
+    ss << "{";
+    for (auto itr = obj.begin(); itr != obj.end();) {
+        ss << dumps(itr->first);
+        ss << ":";
+        ss << dumps(itr->second);
+        if (++itr != obj.end()) ss << ", ";
+    }
+    ss << "}";
+    return ss.str();
+}
+
+// std::pair
+template <typename T, typename U>
+std::string dumps(const std::pair<T, U>& obj) {
+    std::stringstream ss;
+    ss << "{" << dumps(obj.first) << ":" << dumps(obj.second) << "}";
+    return ss.str();
+}
+```
+
+对于数组类型，使用了前面提到的`extent`，另外`std::is_array`可以判定T是不是一个数组。对于`std::array`，可以直接通过模板参数获得数组长度:
+
+```cpp
+// array
+template <typename T>
+std::enable_if_t<std::is_array_v<T>, std::string> dumps(const T &arr) {
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < std::extent<T>::value; ++i) {
+    ss << dumps(arr[i]);
+    if (i != std::extent<T>::value - 1) ss << ", ";
+  }
+  ss << "]";
+  return ss.str();
+}
+
+// std::array
+template <typename T, std::size_t N>
+std::string dumps(const std::array<T, N> &obj) {
+  std::stringstream ss;
+  ss << "[";
+  for (auto itr = obj.begin(); itr != obj.end();) {
+    ss << dumps(*itr);
+    if (++itr != obj.end()) ss << ", ";
+  }
+  ss << "]";
+  return ss.str();
+}
+```
+
+对于`std::tuple`，由于它的实现原理比较特殊，所以逻辑与其它不同，要写一个基于tuple长度N的递归展开:
+
+```cpp
+// std::tuple
+template <size_t N, typename... Args>
+std::enable_if_t<N == sizeof...(Args) - 1, std::string>
+dumps(const std::tuple<Args...> &obj) {
+  std::stringstream ss;
+  ss << dumps(std::get<N>(obj)) << "]";
+  return ss.str();
+}
+template <size_t N, typename... Args>
+std::enable_if_t<N != 0 && N != sizeof...(Args) - 1, std::string>
+dumps(const std::tuple<Args...> &obj) {
+  std::stringstream ss;
+  ss << dumps(std::get<N>(obj)) << ", " << dumps<N + 1, Args...>(obj);
+  return ss.str();
+}
+template <size_t N = 0, typename... Args>
+std::enable_if_t<N == 0, std::string> dumps(const std::tuple<Args...> &obj) {
+  std::stringstream ss;
+  ss << "[" << dumps(std::get<N>(obj)) << ", " << dumps<N + 1, Args...>(obj);
+  return ss.str();
+}
+```
+
+对于指针类型，我们希望输出它指向的值:
+
+```cpp
+// pointer
+template <typename T>
+std::string dumps(const T *p) {
+  return dumps(*p);
+}
+// shared_ptr, weak_ptr, unique_ptr
+template <typename T>
+std::enable_if_t<
+    is_instantiation_of_v<T, std::shared_ptr> ||
+        is_instantiation_of_v<T, std::weak_ptr> ||
+        is_instantiation_of_v<T, std::unique_ptr>,
+    std::string>
+dumps(const std::shared_ptr<T> &p) {
+  return dumps(*p);
+}
+```
+
+我们定义了很多模板，但这时我们会遇到名字查找的问题，如果直接把上面模板的定义写到头文件里，由于这些函数模板是相互调用的，所以这些模板之间的名字查找就存在了顺序依赖。所以，我们必须先前向声明所有的dumps模板。这和函数的前向声明是同一个道理。虽然我们直接把模板的定义放在头文件里，但模板的声明在某些情况下也是必不可少的。
+
+我们已经处理了内置类型和STL中的类型，那么对于用户的自定义类型应该如何处理？这里就要用到依赖于实参的名字查找(Argument-dependent Name Lookup,ADL)，ADL是指编译器会去函数实参类型所在的命名空间里查找函数名字。所以我们在定义`UserDefine`类型时，在同一个命名空间内提供一个针对`UserDefine`的`dumps`重载即可。
+
+```cpp
+struct UserDefine { int a; };
+
+std::string dumps(const UserDefine& obj){
+    return "UserDefine" + std::to_string(obj.a);
+}
+```
