@@ -7,6 +7,8 @@ Metaprogram is a program about a program. :face_in_clouds:
 
 [2. Template Basics](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes/TemplateBasics)
 
-[3. Learn TMP in Use](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes/LearnTMPinUse)
+[3. Learn TMP in Use Part 1](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes/LearnTMPinUse)
 
 [4. Template in Depth](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes/TemplateinDepth)
+
+[5. Learn TMP in Use Part 2](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes/LearnTMPinUseP2)

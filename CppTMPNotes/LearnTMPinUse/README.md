@@ -1,4 +1,4 @@
-# 3. Learn TMP in Use
+# 3. Learn TMP in Use Part 1
 通过几个例子，来进一步了解TMP，以及了解什么是Metafunction Convention。这些例子大部分来自标准库`<type_traits>`。
 
 ## 3.1 Example 1: Type Manipulation
