@@ -56,7 +56,6 @@ struct always_true : true_type {};
 
 template <typename T> struct S{
     template <typename U> static enable_if<always_true_v<U> && is_same_v<T, int>> foo(U) {};
-
     template <typename U> static enable_if<always_true_v<U> && !is_same_v<T, int>> foo(U) {};
 };
 
