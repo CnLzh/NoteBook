@@ -19,5 +19,8 @@ LeetCode solutions in C++. :sparkles:
 ### 贪心
 [1785. 构成特定和需要添加的最少元素](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes/Greedy/1785)
 
+### 二分
+[1802. 有界数组中指定下标处的最大值](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes/Bisection/1802)
+
 ### 并查集
 [1697. 检查边长度限制的路径是否存在](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes/DisjointSetUnion/1697)
