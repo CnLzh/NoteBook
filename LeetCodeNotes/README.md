@@ -15,3 +15,6 @@ LeetCode solutions in C++. :sparkles:
 
 ### 动态规划
 [1691. 堆叠长方体的最大高度](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes/Dp/1691)
+
+### 并查集
+[1697. 检查边长度限制的路径是否存在](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes/DisjointSetUnion/1697)
