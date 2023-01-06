@@ -56,3 +56,5 @@ I/O多路复用就是通过一种机制，一个进程可以监控多个描述�
 3. 由内核监听`fdlist`，遍历并判断是否有读写事件发生。
 4. 若有读写事件发生，返回大于0的正整数，由用户态判断哪些文件描述符可以被使用，并通知应用进程处理。
 5. 若无读写事件发生，返回0，由`timeout`决定是等待固定时间进行下一次监听或是轮询。
+
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/IOMultiplexing/src/select/main.cpp)查看Linux下C++实现的select模型server完整示例。client可直接使用终端命令`nc -v server的IP地址 server监听的端口号`的方式进行连接，如`nc -v 127.0.0.1 9808`。
