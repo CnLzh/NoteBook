@@ -68,4 +68,11 @@ I/O多路复用就是通过一种机制，一个进程可以监控多个描述�
 ### 2. poll
 poll的实现和select非常相似，只是对文件描述符集合的描述方式不同。针对select的三个问题，poll使用pollfd结构而不是fd_set结构，解决问题2的fd集合大小限制。但poll和select存在同样性能缺陷：包含大量文件描述符的集合被整体复制于用户态和内核态的地址空间之间，不论这些文件描述符是否就绪，造成的开销随着文件描述符的数量增加而线性增加；以及一个文件描述符就绪触发整体文件描述符集合的遍历的低效问题。因此poll也并不适用于大并发的场景。
 
+#### C++中的poll函数
+`int poll(struct pollfd *fds, unsigned int nfds, int timeout)`
+
+- `fds`：指向pollfd结构体数组，待检测的文件描述符集合。
+- `nfds`：pollfd结构体数组的个数。
+- `timeout`：定时监控阻塞时间。
+
 点击[此处](https://github.com/CnLzh/NoteBook/blob/main/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
