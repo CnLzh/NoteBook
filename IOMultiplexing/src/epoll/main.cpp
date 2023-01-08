@@ -93,19 +93,23 @@ int main() {
 		}
 	  } else {
 		if (events[i].events & (EPOLLIN | EPOLLPRI)) {
-		  char recv_buf[1024];
-		  memset(recv_buf, 0, sizeof(recv_buf));
-		  ssize_t recv_ret = recv(events[i].data.fd, recv_buf, 1024, 0);
-		  if (recv_ret <= 0) {
-			std::cout << "recv data error!" << std::endl;
-			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, nullptr);
-			close(events[i].data.fd);
-		  } else {
-			std::cout << "recv data: " << recv_buf << std::endl;
+		  while (true) {
+			char recv_buf[10];
+			memset(recv_buf, 0, sizeof(recv_buf));
+			ssize_t recv_ret = recv(events[i].data.fd, recv_buf, sizeof(recv_buf) - 1, 0);
+			if (recv_ret > 0) {
+			  std::cout << "recv data: " << recv_buf << std::endl;
+			} else {
+			  if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				break;
+			  }
+			  std::cout << "recv data error!" << std::endl;
+			  epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, nullptr);
+			  close(events[i].data.fd);
+			}
 		  }
 		}
 	  }
 	}
   }
-  return 0;
 }
