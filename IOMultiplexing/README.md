@@ -76,3 +76,79 @@ poll的实现和select非常相似，只是对文件描述符集合的描述方�
 - `timeout`：定时监控阻塞时间。
 
 点击[此处](https://github.com/CnLzh/NoteBook/blob/main/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
+
+### 3. epoll
+相比于select和poll，epoll最大的好处在于不会随监听的fd数量增长而降低效率，不存在随着并发量的提高出现性能明显下降的问题。
+
+#### C++中的epoll函数
+接下来，我们从epoll的三个接口函数，来了解epoll的工作原理：
+
+`int epoll_create(int size)`：
+- 功能：该函数用于创建一个epoll对象，返回该对象的文件描述符。
+- 参数：`size`用于告诉内核监听的数量有多大，但并不限制epoll所能监听的描述符最大个数，只是对内核初始化时分配内部数据结构的一个建议。
+- 返回值：成功返回epoll的文件描述符，失败返回-1。
+
+调用`epoll_create()`时，会创建一个`eventpoll`结构体的对象，其主要成员及含义如下：
+- wq：等待队列链表。
+- rbr：红黑树。为了支持大量链接的高效查找、删除和插入，eventpoll内部使用红黑树管理所有socket连接。
+- rdllist：就绪的文件描述符双向链表。当有链接就绪时，内核把就绪连接放到rdllist链表中。用户态只需要判读链表就能找到就绪进程，不需要遍历红黑树所有节点。
+
+`int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);`：
+- 功能：epoll的事件注册函数，用于注册监听的事件。把一个socket和这个socket相关的事件添加到epoll对象。
+- 参数epfd：epoll的文件描述符，`epoll_create`的返回值。
+- 参数op：要做的动作(添加，修改，删除)，由三个宏来表示：
+1. EPOLL_CTL_ADD：添加新的fd到epfd中，把socket节点插入到红黑树中。
+2. EPOLL_CTL_MOD：修改已经注册的fd的监听时间。
+3. EPOLL_CTL_DEL：删除一个fd。
+- 参数fd：需要监听的文件描述符
+- 参数event：需要监听的事件类型，分以下几种：
+1. EPOLLIN：文件描述符可读
+2. EPOLLOUT：文件描述符可写
+3. EPOLLPRI：文件描述符有紧急数据可读
+4. EPOLLERR：文件描述符发生错误
+5. EPOLLHUP：文件描述符被挂断
+6. EPOLLET：设为边缘触发模式
+7. EPOLLONESHOT：只监听一次
+- 返回值：成功返回0，失败返回-1。
+
+`int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);`：
+- 功能：等待事件发生。从内核态把就绪队列拷贝到用户态。
+- 参数epfd：epoll的文件描述符。
+- 参数events：分配好的`epoll_events`结构体数组，epoll会把事件赋值到`events`数组中，不能为空，内核只负责赋值，不负责分配内存。
+- 参数maxevents：events个数，大小应和events一致。
+- 参数timeout：超时时间。
+- 返回值：成功返回需要处理的事件数，超时返回0，失败返回-1。
+
+关于边缘触发(ET)和水平触发(LT)：
+
+`select`和`poll`仅支持LT工作方式，`epoll`默认为LT的工作方式。
+ET：无论事件是否处理完毕，仅触发一次。
+LT：只要事件没处理完，每一次`epoll_wait`都触发该事件。
+
+由上述三个接口，总结一下`epoll`的工作流程：
+
+1. 用户态创建epoll文件描述符。
+2. 将需要监听的文件描述符(socket)注册到epoll中，由内核监听事件。
+3. 若有事件发生，返回大于0的正整数，由用户态做对应处理。
+4. 若无事件发生，返回0，由timeout决定阻塞时间。
+
+接下来，我们来探索`epoll`的内部实现原理：
+
+- `epoll_create`：
+主要用于创建`eventpoll`结构体，其中包含如下几种关键数据：
+1. 红黑树：用于管理存放事件的集合，这些事件以`epitem`作为节点挂载到红黑树上，并与设备驱动建立回调关系。其主要需求为在大量并发的场景下，快速的添加、修改、删除节点。选择红黑树的数据结构解决该问题，每次通过`epoll_ctl`的任何操作的时间复杂度为O(logN)。
+2. 等待队列：在调用`epoll_wait`时，若就绪队列为空，内核将进程引用放入epoll的等待队列中，阻塞进程。
+3. 就绪队列：当socket事件发生时，通过相应的回调事件，将对应的`epitem`节点加入到就绪队列中。
+
+- `epoll_ctl`：
+主要用于将事件以`epitem`节点的形式挂载到红黑树上，并建立回调关系。
+
+- `epoll_wait`：
+由内核检查就绪队列的状态。若就绪队列非空，将其拷贝到用户态并返回事件数量；若就绪队列为空，将进程放入等待队列，阻塞进程。
+
+因此，`epoll`支持大量并发的主要原因为：
+
+1. 不用重复在内核态和用户态拷贝事件集合。
+2. 事件以节点的形式挂载到红黑树上，通过`epoll_ctl`的任何操作的事件复杂度都是O(logN)。
+3. `epoll_wait`仅关注就绪队列是否为空，不需要遍历事件集合。
+4. 向内核中断注册回调函数，一旦有事件触发，由回调将事件对应节点添加到就绪队列中，时间复杂度仅为O(1)。
