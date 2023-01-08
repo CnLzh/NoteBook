@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <unistd.h>
-#include <poll.h>
+#include <sys/poll.h>
 
 const constexpr unsigned int MAX_CONNECTIONS = 1024;
 
@@ -66,7 +66,7 @@ int main() {
 	  int client_fd = accept(server_sock_fd, (struct sockaddr *)&client_addr, &client_len);
 	  if (client_fd == -1) {
 		std::cout << "client socket error!" << std::endl;
-		break;
+		continue;
 	  } else {
 		char ip[64];
 		std::cout << "accept client socket, IP: "
@@ -88,7 +88,7 @@ int main() {
 		  memset(recv_buf, 0, sizeof(recv_buf));
 		  ssize_t recv_ret = recv(fds[i].fd, recv_buf, 1024, 0);
 		  if (recv_ret <= 0) {
-			std::cout << "recv data error" << std::endl;
+			std::cout << "recv data error!" << std::endl;
 			close(fds[i].fd);
 			fds[i].fd = -1;
 		  } else {
@@ -98,13 +98,5 @@ int main() {
 	  }
 	}
   }
-  // 关闭所有客户端连接
-  for (int i = 0; i < nfds; i++) {
-	if (fds[i].fd != -1) {
-	  close(fds[i].fd);
-	}
-  }
-  // 关闭server监听
-  close(server_sock_fd);
   return 0;
 }
