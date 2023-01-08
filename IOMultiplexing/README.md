@@ -152,3 +152,5 @@ LT：只要事件没处理完，每一次`epoll_wait`都触发该事件。
 2. 事件以节点的形式挂载到红黑树上，通过`epoll_ctl`的任何操作的事件复杂度都是O(logN)。
 3. `epoll_wait`仅关注就绪队列是否为空，不需要遍历事件集合。
 4. 向内核中断注册回调函数，一旦有事件触发，由回调将事件对应节点添加到就绪队列中，时间复杂度仅为O(1)。
+
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/IOMultiplexing/src/epoll/main.cpp)查看Linux下C++实现的epoll模型server完整示例。
