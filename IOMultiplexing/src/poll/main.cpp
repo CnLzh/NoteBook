@@ -41,9 +41,9 @@ int main() {
   }
   // 初始化文件描述符集合，添加服务端socket到集合中
   struct pollfd fds[MAX_CONNECTIONS];
-  for (int i = 0; i < MAX_CONNECTIONS; i++) {
-	fds[i].fd = -1;
-	fds[i].events = POLLIN | POLLPRI;
+  for (auto & fd : fds) {
+	fd.fd = -1;
+	fd.events = POLLIN | POLLPRI;
   }
   fds[0].fd = server_sock_fd;
   // 文件描述符集合有效长度
@@ -72,9 +72,9 @@ int main() {
 		std::cout << "accept client socket, IP: "
 				  << inet_ntop(AF_INET, &client_addr.sin_addr.s_addr, ip, sizeof(ip))
 				  << " Port: " << ntohs(client_addr.sin_port) << "Fds: " << client_fd << std::endl;
-		for (int i = 0; i < MAX_CONNECTIONS; i++) {
-		  if (fds[i].fd == -1) {
-			fds[i].fd = client_fd;
+		for (auto & fd : fds) {
+		  if (fd.fd == -1) {
+			fd.fd = client_fd;
 			break;
 		  }
 		}
