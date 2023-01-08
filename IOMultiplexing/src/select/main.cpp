@@ -70,7 +70,7 @@ int main() {
 	  int client_fd = accept(server_sock_fd, (struct sockaddr *)&client_addr, &client_len);
 	  if (client_fd == -1) {
 		std::cout << "client socket error!" << std::endl;
-		break;
+		continue;
 	  } else {
 		char ip[64];
 		std::cout << "accept client socket, IP: "
@@ -99,10 +99,5 @@ int main() {
 	  }
 	}
   }
-  // 关闭所有客户端连接
-  for (auto it : client_fds)
-	close(it);
-  // 关闭server监听
-  close(server_sock_fd);
   return 0;
 }
