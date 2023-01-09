@@ -106,6 +106,7 @@ int main() {
 			  std::cout << "recv data error!" << std::endl;
 			  epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, nullptr);
 			  close(events[i].data.fd);
+			  break;
 			}
 		  }
 		}
