@@ -3,7 +3,6 @@
 // File:     thread_pool.cpp
 // Brief:    Definition the ThreadPool class.
 // Author:   CnLzh
-//
 
 #include "thread_pool.h"
 

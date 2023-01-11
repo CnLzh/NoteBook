@@ -3,7 +3,6 @@
 // File:     thread_pool.h
 // Brief:    Declares the ThreadPool class.
 // Author:   CnLzh
-//
 
 #ifndef SRC_THREAD_POOL_H_
 #define SRC_THREAD_POOL_H_
