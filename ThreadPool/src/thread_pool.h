@@ -14,6 +14,8 @@
 #include <condition_variable>
 #include <thread>
 #include <atomic>
+#include <future>
+#include <stdexcept>
 
 // 禁用拷贝和赋值构造函数
 #define DISALLOW_COPY_AND_ASSIGN(ClassName) \
@@ -50,9 +52,28 @@ class ThreadPool final {
    * @remark 唤醒线程池内所有线程，并等待所有线程执行结束
    */
   ~ThreadPool() noexcept;
+  /**
+   * @brief commit 提交一个任务
+   * @tparam T 函数指针
+   * @tparam Args 参数列表
+   * @return
+   */
+  template<typename T, typename... Args>
+  auto commit(T &&f, Args &&... args) -> std::future<decltype(f(args...))>;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ThreadPool)
 };
+
+template<typename F, typename ...Args>
+auto ThreadPool::commit(F &&f, Args &&...args) -> std::future<decltype(f(args...))> {
+  if (thread_pool_status_ != ThreadPoolStatus::TPS_RUNNING)
+	throw std::runtime_error("Commit on ThreadPool is stopped.");
+
+  using RetType = decltype(f(args...));
+  auto task = std::make_shared<std::packaged_task<RetType>>(
+	  std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+  );
+}
 
 #endif // SRC_THREAD_POOL_H_

@@ -7,7 +7,9 @@
 #include "thread_pool.h"
 
 ThreadPool::ThreadPool(const unsigned int &kCorePoolSize, const unsigned int &kMaxPoolSize) noexcept
-	: kCorePoolSize_(kCorePoolSize), kMaxPoolSize_(kMaxPoolSize), thread_pool_status_(TPS_RUNNING) {
+	: kCorePoolSize_(kCorePoolSize),
+	  kMaxPoolSize_(kMaxPoolSize),
+	  thread_pool_status_(TPS_RUNNING) {
 
 }
 
