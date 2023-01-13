@@ -6,9 +6,15 @@
 
 #include "thread_pool.h"
 
-ThreadPool::ThreadPool(const unsigned int &kCorePoolSize, const unsigned int &kMaxPoolSize) noexcept
+ThreadPool::ThreadPool(
+	const unsigned int &kCorePoolSize,
+	const unsigned int &kMaxPoolSize,
+	const unsigned int &kMaxTaskSize
+) noexcept
 	: kCorePoolSize_(kCorePoolSize),
 	  kMaxPoolSize_(kMaxPoolSize),
+	  kMaxTaskSize_(kMaxTaskSize),
+	  idle_thread_num_(kCorePoolSize),
 	  thread_pool_status_(TPS_RUNNING) {
 
 }
