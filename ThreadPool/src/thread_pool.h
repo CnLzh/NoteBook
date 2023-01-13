@@ -45,6 +45,7 @@ class ThreadPool final {
   std::atomic<unsigned int> idle_thread_num_;  // 空闲线程数
 
  public:
+
   /**
    * @brief constructor
    * @param kCorePoolSize 核心线程数
@@ -55,11 +56,13 @@ class ThreadPool final {
 	  const unsigned int &kMaxPoolSize = 8,
 	  const unsigned int &kMaxTaskSize = 1024
   ) noexcept;
+
   /**
    * @brief destructor
    * @remark 唤醒线程池内所有线程，并等待所有线程执行结束
    */
   ~ThreadPool() noexcept;
+
   /**
    * @brief commit 提交一个任务
    * @tparam T 函数指针
