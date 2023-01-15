@@ -1,6 +1,4 @@
 #include "thread_pool.h"
-#include <iostream>
-#include <synchapi.h>
 
 void func() {
   // do something
