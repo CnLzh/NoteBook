@@ -1,5 +1,5 @@
 # NoteBook :notebook:
-Learning Notes.
+Learning Notes. All notes using C++ programming.
 ## Table Of Contents
 [LeetCode Solutions](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes)
 
@@ -9,4 +9,6 @@ Learning Notes.
 
 [I/O Multiplexing](https://github.com/CnLzh/NoteBook/tree/main/IOMultiplexing)
 
-[C++ Thread Pool](https://github.com/CnLzh/NoteBook/tree/main/ThreadPool)
+[Thread Pool](https://github.com/CnLzh/NoteBook/tree/main/ThreadPool)
+
+[Design Pattern](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern)
