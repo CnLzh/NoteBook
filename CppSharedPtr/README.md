@@ -9,7 +9,7 @@ class A {
  public:
   std::shared_ptr<B> a_;
   ~A() {
-	std::cout << "class A destruction " << std::endl;
+	std::cout << "class A destructor " << std::endl;
   }
 };
 
@@ -17,7 +17,7 @@ class B {
  public:
   std::shared_ptr<A> b_;
   ~B() {
-	std::cout << "class B destruction " << std::endl;
+	std::cout << "class B destructor " << std::endl;
   }
 };
 
@@ -61,7 +61,7 @@ class A {
  public:
   std::weak_ptr<B> _a;
   ~A() {
-	std::cout << "class A destruction " << std::endl;
+	std::cout << "class A destructor " << std::endl;
   }
 };
 
@@ -69,7 +69,7 @@ class B {
  public:
   std::weak_ptr<A> _b;
   ~B() {
-	std::cout << "class B destruction " << std::endl;
+	std::cout << "class B destructor " << std::endl;
   }
 };
 ```
@@ -80,8 +80,8 @@ a_ptr use count:1
 b_ptr use count:1
 a_ptr use count:1
 b_ptr use count:1
-class B destruction
-class A destruction
+class B destructor
+class A destructor
 ```
 
 使用weak_ptr指向内存空间，不会引起引用计数器的变化。故在程序运行结束后，a_ptr与b_ptr的引用计数器均为零，正确执行了析构函数，解决了循环引用问题。
