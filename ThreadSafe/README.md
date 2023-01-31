@@ -49,4 +49,45 @@
 
 虽然这些竞态条件看起来可以通过加锁解决，但是在哪里加锁，谁持有这些锁，似乎又不是那么简单。要是存在一个活着的对象，能告诉我们要访问的对象是否还活着就好了。
 
-所以，在需要暴露给其他线程时，使用指向对象的原始指针是不好的做法。`Subject`保存的不应该是原始的`Observer*`，而是别的能分辨`Observer`对象是否存活的东西。
+另外，当存在两个指针`p1`和`p2`，且指向堆上的同一个对象`Object`时，若线程A通过`p1`指针销毁了对象，那么`p2`就变成了空悬指针。要想安全的销毁对象，最好是在其余线程都看不到的情况下做(垃圾回收的原理，就是所有人都用不到的东西一定是垃圾)。
+
+所以，在需要暴露给其他线程时，使用指向对象的原始指针是不好的做法。`Subject`保存的不应该是原始的`Observer*`，而是别的能分辨`Observer`对象是否存活且可以安全销毁的东西。
+
+### 使用shared_ptr/weak_ptr
+显然，通过智能指针提供的引用计数功能，可以解决上述竞态条件的问题。当然，此处要警惕循环引用导致资源泄露的问题。
+
+```cpp
+class Observable{
+ public:
+  void Register(const std::weak_ptr<Observer>& x){
+	std::lock_guard lock(mutex_);
+	observers_.push_back(x);
+  }
+
+  void NotifyObservers(){
+	std::lock_guard lock(mutex_);
+	for(auto it = observers_.begin(); it != observers_.end();){
+	  std::shared_ptr<Observer> obj(it->lock());
+	  if(obj){
+		obj->Update();
+		++it;
+	  } else{
+		it = observers_.erase(it);
+	  }
+	}
+  }
+
+ private:
+  std::mutex mutex_;
+  std::vector<std::weak_ptr<Observer>> observers_;
+};
+```
+
+通过将`Observer*`替换为`weak_ptr`，解决了线程安全的问题，但还有几个疑点：
+
+- 侵入性：强制要求Observer必须以shared_ptr管理
+- 不是完全线程安全：Observer的析构函数会调用`subject->unregister`解注册，万一`subject`已经不存在了呢？
+- 锁争用：Observable的三个成员函数都用了互斥同步，会导致`register和unregister`等待`notify`，而后者的执行时间是无法预期的，因为它同步回调了用户提供的`Update`函数。
+- 死锁：万一`Update`中调用了`(un)register`，如果`mutex_`是不可重入的，会造成死锁；如果是可重入的，会造成迭代器失效。
+
+关于shared_ptr的更多注意事项，可以参考[此处](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr)。
