@@ -2,6 +2,8 @@
 Learning Notes. All notes using C++ programming.
 ## Table Of Contents
 
+[C++ Shared Ptr](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr)
+
 [C++ Template MetaProgramming](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes)
 
 [Design Pattern](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern)
