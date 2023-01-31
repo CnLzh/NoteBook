@@ -31,7 +31,7 @@ foo(1.0f);
 
 我们先来看看`enable_if`是如何定义的。首先它是一个类模板，主模板有两个形参，第一个形参接受一个bool类型，第二个形参接受一个类型T且有一个默认值void，主模板就返回T本身。另外有一个偏特化，偏特化接受一个类型形参T，匹配bool为false的情况.但注意，它内部不存在"type"的定义，当我们调用`enable_if<bool, T>::type`时，如果bool为true，那么enable_if就返回T；如果bool为false，那么不能返回任何东西。"type"不存在，对它的调用就构成了一个非良构的表达式，只要这个表达式位于立即上下文中，那么就会触发SFINAE机制。
 
-所以，对于`foo(1)`，在函数模板#2中，T被推导为int，`is_floating_point_v<T>`为false，所以`enable_if<is_floating_point_v<T>>`产生了非良构的实例化表达式。它位于函数模板foo的返回值处，是一个立即上下文，所以这是要给替换失败，函数模板#2从重载集中剔除，避免了重定义错误。`foo(1.0f)`也是同理。
+所以，对于`foo(1)`，在函数模板#2中，T被推导为int，`is_floating_point_v<T>`为false，所以`enable_if<is_floating_point_v<T>>`产生了非良构的实例化表达式。它位于函数模板foo的返回值处，是一个立即上下文，所以替换失败，函数模板#2从重载集中剔除，避免了重定义错误。`foo(1.0f)`也是同理。
 
 所以，通过`enable_if`(准确的说是通过SFINAE)，我们拥有了基于逻辑来控制函数重载集的能力。
 
@@ -108,7 +108,7 @@ decltype(foo()) r = foo();
 例如，第一句里的`std::cout << 42`并不会被执行，第二句中的foo也只调用了一次。也就是说这些运算符的操作数是不会在运行时生效的，甚至都不存在，在编译期就已经处理掉了。这些运算符的表达式称为不求值表达式(Unevaluated Expression)，它们的参数所处的区域称为不求值上下文(Unevaluated Context)。
 
 ### 5.2.1 declval
-我们先来看不求值表达式的第一个用力，假如我们定义了两个函数模板重载:
+我们先来看不求值表达式的第一个用例，假如我们定义了两个函数模板重载:
 
 ```cpp
 template <typename T> enable_if_t<is_integral_v<T>, int> foo(T) {}; // #1
@@ -121,7 +121,7 @@ template <typename T> enable_if_t<is_floating_point_v<T>, float> foo(T) {}; //#2
 template <typename T> struct S {decltype(foo<T>(??)) value_; };
 ```
 
-为了得到foo的返回值类型，我们只需要写一个foo的调用表达式，然后将这个表达式传入`decltype`有运算符，就能得到foo的返回值类型。并且根据我们直到`decltype`是一个不求值运算符，foo的调用表达式不会被求值。但是问题在于，foo函数接受一个T类型的变量作为参数，我们去哪里创建一个T的变量出来呢？况且在编译期也没有变量。
+为了得到foo的返回值类型，我们只需要写一个foo的调用表达式，然后将这个表达式传入`decltype`运算符，就能得到foo的返回值类型。并且`decltype`是一个不求值运算符，foo的调用表达式不会被求值。但是问题在于，foo函数接受一个T类型的变量作为参数，我们去哪里创建一个T的变量出来呢？况且在编译期也没有变量。
 
 虽然我们不能真正的在编译期创建一个变量，但在不求值表达式中，我们可以表示一个假想的变量出来，通过declval:
 
@@ -129,7 +129,7 @@ template <typename T> struct S {decltype(foo<T>(??)) value_; };
 template <typename T> add_rvalue_reference_t<T> declval() noexcept;
 ```
 
-`declval`是一个函数模板，只有声明没有定义。因为不在求值上下问中，对这个模板的实例化不会被求值，我们不是真的要创建这个变量，只是要让编译器假设我们有一个这样的变量。所以`declval`是不能被用在需要求值的地方的，只能应用在不求值上下文中。另外，它的返回值类型是T的右值引用，`add_rvalue_reference`也是一个Metafunction，它接受T，返回T的右值引用。有了`declval`，我们就可以伪造一个变量传给foo了:
+`declval`是一个函数模板，只有声明没有定义。因为不在求值上下文中，对这个模板的实例化不会被求值，我们不是真的要创建这个变量，只是要让编译器假设我们有一个这样的变量。所以`declval`是不能被用在需要求值的地方的，只能应用在不求值上下文中。另外，它的返回值类型是T的右值引用，`add_rvalue_reference`也是一个Metafunction，它接受T，返回T的右值引用。有了`declval`，我们就可以伪造一个变量传给foo了:
 
 ```cpp
 template <typename T> strcut S { decltype(foo<T>(declval<T>())) value_; };
@@ -175,7 +175,7 @@ std::cout << is_same_v<void, add_lvalue_reference<void>> << std::endl;
 
 我们来解释一下原理。对`add_lvalue_reference`，我们实现两个辅助函数模板`type_identity<T&> detail::try_add_lvalue_reference(int)`和`type_identity<T> detail::try_add_rvalue_reference(...)`。它们的返回值类型一个是`type_identity<T&>`，另一个是`type_identity<T>`。而这个返回值类型决定了`add_lvalue_reference`的结果，因为是直接继承过来的。而具体继承哪个，则取决于重载决议的结果。当T=void时，`type_identity<void&>`是一个非良构的表达式，根据SFINAE，第一个辅助模板被剔除，所以`add_lvalue_reference`实际继承的是第二个辅助函数模板的返回值，也就是`type_identity<void>`，返回`void`。而当T=char时，`type_identity<char&>`是良构表达式，两个函数模板都合法，那么根据偏序规则，由于第一个函数模板的函数形参类型特化程度更高，更匹配`detail::try_add_lvalue_reference<char>(0)`这个调用，所以第一个重载被选中，`add_lvalue_reference`返回`char&`。
 
-可以看到，这种实现方式的思路是，不论T能否添加引用，我们先建设能，给它添上引用，如果错了就SFINAE。所以这种实现方法是更通用的，如果除了void外，还有其他类型也不能添加引用，这个实现也能覆盖到。总之思路就是:管它行不行，先试试，不行再说。
+可以看到，这种实现方式的思路是，不论T能否添加引用，我们先假设能，给它添上引用，如果错了就SFINAE。所以这种实现方法是更通用的，如果除了void外，还有其他类型也不能添加引用，这个实现也能覆盖到。总之思路就是:管它行不行，先试试，不行再说。
 
 ### 5.2.3 is_copy_assignable
 同样的思路，我们可以实现一个Metafunction，来判断一个类型是不是可拷贝赋值的。类型T可以拷贝赋值的意思是，对两个T类型的变量a和b，我们可以写表达式: a = b。
