@@ -167,4 +167,52 @@ Base destructor
 
 可以看到，若基类不是虚析构函数，shared_ptr也可以正确完成派生类的析构；但原始指针不能正确完成派生类的析构。
 
-其实现原理是通过泛型编程与面向对象编程相结合，在shared_ptr创建时，保存了所创建的派生类的指针，并在最终析构时调用。以下模拟其析构的实现原理：
+其实现原理是通过泛型编程与面向对象编程相结合，在shared_ptr创建时，不仅存储了一个引用计数器，还存储了构造期间使用的指针类型作为删除器，并在引用计数器为零时调用删除器。在上面的例子中，shared_ptr的删除器是在创建时构造的，其始终指向一个Derived对象，并在删除时调用其析构函数，该行为与虚函数无关，因此无需虚析构函数。以下模拟其析构的实现原理：
+
+```cpp
+template<typename Base>
+class simple_ptr_internal_interface {
+ public:
+  virtual Base *get() = 0;
+  virtual void destruct() = 0;
+};
+
+template<typename Base, typename Derived>
+class simple_ptr_internal : public simple_ptr_internal_interface<Base> {
+ public:
+  struct DefaultDeleter {
+	void operator()(Base *t) {
+	  delete static_cast<Derived *>(t);
+	}
+  };
+  simple_ptr_internal(Base *p)
+	  : pointer_(p) {}
+  virtual Base *get() override {
+	return pointer_;
+  }
+  virtual void destruct() override {
+	deleter_(pointer_);
+  }
+ private:
+  Base *pointer_;
+  DefaultDeleter deleter_;
+};
+
+template<typename Base>
+class simple_ptr {
+ public:
+  template<typename Derived>
+  explicit simple_ptr(Derived *d)
+	  : internal(new simple_ptr_internal<Base, Derived>(d)) {}
+
+  ~simple_ptr() {
+	this->destruct();
+  }
+
+ private:
+  void destruct() {
+	internal->destruct();
+  }
+  simple_ptr_internal_interface<Base> *internal;
+};
+```
