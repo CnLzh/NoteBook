@@ -69,7 +69,7 @@ int main() {
 	sub.Notify("hello");  // 通知观察者状态变化
 	sub.UnRegister(ob);  // 注销
 	sub.Notify("world");  // 通知观察者状态变化
-    delete ob;
+	delete ob;
 	return 0;
 }
 ```
