@@ -216,3 +216,5 @@ class simple_ptr {
   simple_ptr_internal_interface<Base> *internal;
 };
 ```
+
+如上所述，shared_ptr在构造时保存了原始的指针类型，并在析构时释放。
