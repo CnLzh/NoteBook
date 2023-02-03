@@ -229,3 +229,41 @@ class simple_ptr {
 
 ### 定制析构功能
 shared_ptr具有定制析构功能，其构造函数可以有一个额外的模板类型参数，传入一个函数指针或者仿函数func，在析构对象时执行func(ptr)，其中ptr是shared_ptr保存的对象指针。
+
+假设存在Stock类，代表一只股票的价格，每支股票有一个唯一的字符串表示。Stock是一个主动对象，能不断获取新价格。为了节约系统资源，同一个程序里每个出现的股票只有一个Stock对象，如果多处用到同一只股票，那么Stock对象应该被共享。如果这个股票没有在任何地方用到，其对应的Stock对象应该析构，以释放资源。
+
+根据以上要求，我们设计一个对象池StockFactory。接口很简单，根据key返回Stock对象。在多线程程序中，对象可能被销毁，那么返回shared_ptr是合理的，我们写出如下代码(错的)。
+
+```cpp
+class StockFactory {
+ public:
+  std::shared_ptr<Stock> get(const std::string &key);
+
+ private:
+  StockFactory(const StockFactory &) = delete;
+  StockFactory operator=(const StockFactory &) = delete;
+
+  std::mutex mutex_;
+  std::map<std::string, std::shared_ptr<Stock>> stocks_;
+};
+```
+
+其中`get()`的逻辑很简单，如果在`stocks_`中找到了key，就返回`stocks_[key]`，否则新建一个Stock并存入`stocks_[key]`。
+
+然而这里存在一个问题，Stock对象永远不会被销毁，因为map中存的是shared_ptr。那么如果使用weak_ptr呢，比如：
+
+```cpp
+std::shared_ptr<Stock> StockFactory::get(const std::string &key) {
+  std::shared_ptr<Stock> p_stock;
+  std::lock_guard lock(mutex_);
+  std::weak_ptr<Stock>& wk_stock = stocks_[key];
+  p_stock = wk_stock.lock();
+  if(!p_stock){
+	p_stock.reset(new Stock(key));
+	wk_stock = p_stock;
+  }
+  return p_stock;
+}
+```
+
+虽然通过这种方式可以销毁Stock，但程序却出现了轻微的内存泄露，因为`stocks_`的大小只增不减，`stocks_.size()`是曾经存活过的Stock对象总数。面对这个问题，可以利用shared_ptr的定制析构功能。
