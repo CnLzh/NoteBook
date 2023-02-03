@@ -332,6 +332,6 @@ stocks_erase(stock->key());
 
 race condition发生在函数进入`DeleteStock`后，在`lock`前，有线程B调用了相同`key`的`StockFactory::Get()`，此时的weak_ptr已经无法提升了，所以会有一个新的Stock对象被创建，而`DeleteStock`的析构才刚刚开始，此时内存中存在两个具有相同key的Stock对象，`DeleteStock`要删除其对象，但不应删除map中的key，否则若再有线程C调用了相同`key`的`StockFactory::Get()`，因map中的key已经被删除，又会构造一个新的Stock对象，导致线程B和线程C分别持有两个key相同的不同对象。
 
-另外，若修改`expired()`为`lock()`，存在造成死锁的可能：`std::muetx`是不可重入的，若线程A进入`DeleteStock`后，在`lock`前，线程B调用了相同`key`的`StockFactory::Get()`，此时`stocks_[key]`的`use_count = 1`，线程A继续执行到`weak_ptr::lock()`提升成功，此时`stocks_[key]`的`use_count = 2`，因`stocks_[key]`提升成功，故不会调用`stocks_.erase(key)`，若线程B刚好释放了shared_ptr，此时`use_count = 1`，线程A继续执行，shared_ptr离开作用域后`use_count = 0`，在本次`DeleteStock`中递归调用了`DeleteStock`，而`std::mutex`不可重入，程序无法继续执行下去，导致死锁。
+另外，若修改`expired()`为`lock()`，存在造成死锁的可能：`std::muetx`是不可重入的，若线程A进入`DeleteStock`后，在`lock`前，线程B调用了相同`key`的`StockFactory::Get()`，此时`stocks_[key]`的`use_count = 1`，线程A继续执行到`weak_ptr::lock()`提升成功，此时`stocks_[key]`的`use_count = 2`，因`stocks_[key]`提升成功，故不会调用`stocks_.erase(key)`。若线程B刚好释放了shared_ptr，此时`use_count = 1`，线程A继续执行，shared_ptr离开作用域后`use_count = 0`，在本次`DeleteStock`中递归调用了`DeleteStock`，而`std::mutex`不可重入，程序无法继续执行下去，导致死锁。
 
 当然，此处还存在另外一个问题，在`StockFactory::Get()`中，我们把一个原始的`StockFactory this`指针保存在了仿函数中，这存在线程安全问题。如果这个StockFactory对象先于Stock对象被析构，Stock对象析构时会发生core dump。我们可以通过[弱回调](https://github.com/CnLzh/NoteBook/tree/main/WeakCallback)技术解决该问题。
