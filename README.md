@@ -17,5 +17,3 @@ Learning Notes. All notes using C++ programming.
 [Thread Pool](https://github.com/CnLzh/NoteBook/tree/main/ThreadPool)
 
 [Thread Safe](https://github.com/CnLzh/NoteBook/tree/main/ThreadSafe)
-
-[Weak Callback](https://github.com/CnLzh/NoteBook/tree/main/WeakCallback)

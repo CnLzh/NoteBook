@@ -334,7 +334,7 @@ race condition发生在函数进入`DeleteStock`后，在`lock`前，有线程B�
 
 另外，若修改`expired()`为`lock()`，存在造成死锁的可能：`std::muetx`是不可重入的，若线程A进入`DeleteStock`后，在`lock`前，线程B调用了相同`key`的`StockFactory::Get()`，此时`stocks_[key]`的`use_count = 1`，线程A继续执行到`weak_ptr::lock()`提升成功，此时`stocks_[key]`的`use_count = 2`，因`stocks_[key]`提升成功，故不会调用`stocks_.erase(key)`。若线程B刚好释放了shared_ptr，此时`use_count = 1`，线程A继续执行，shared_ptr离开作用域后`use_count = 0`，在本次`DeleteStock`中递归调用了`DeleteStock`，而`std::mutex`不可重入，程序无法继续执行下去，导致死锁。
 
-当然，此处还存在另外一个问题，在`StockFactory::Get()`中，我们把一个原始的`StockFactory this`指针保存在了仿函数中，这存在线程安全问题。如果这个StockFactory对象先于Stock对象被析构，Stock对象析构时会发生core dump。我们可以通过[弱回调](https://github.com/CnLzh/NoteBook/tree/main/WeakCallback)技术解决该问题。
+当然，此处还存在另外一个问题，在`StockFactory::Get()`中，我们把一个原始的`StockFactory this`指针保存在了仿函数中，这存在线程安全问题。如果这个StockFactory对象先于Stock对象被析构，Stock对象析构时会发生core dump。我们可以通过下文中的"弱回调"技术解决该问题。
 
 ### enable_shared_from_this
 前文中讲到，如果StockFactory先于Stock对象被析构，Stock析构时去调用`StockFactory::DeleteStock()`时会core dump。似乎我们应该使用shared_ptr解决对象生命周期问题，比如在`StockFactory::Get()`中获得一个指向当前对象this的`shared_ptr<StockFactory>`对象，将其传递给仿函数。这样一来，仿函数中保存了一份`shared_ptr<StockFactory>`以确保调用`StockFactory::DeleteStock()`时StockFactory对象还存活着。例如：
@@ -347,4 +347,10 @@ p_stock.reset(new Stock(key),
 			[self = shared_from_this()](Stock *stock) { self->deleteStock(stock); });
 ```
 
-这里需要注意两点，一是不要直接使用this指针构造shared_ptr，而应使用标准库中提供的`std::enable_shared_from_this`类模板返回指向当前对象的shared_ptr指针，因为使用原始指针创建shared_ptr无法共享(不会增加引用计数)，且会造成内存重复释放(double delete)；二是`shared_from_this()`不能在构造函数中调用，因为`enable_shared_from_this`的工作原理是使用第一个shared_ptr的副本初始化一个隐藏的weak_ptr，该副本指向该对象，因此在构造函数执行期间，该对象还不存在，而若使shared_ptr指向该对象，该对象必须存在(已经构造)，所以构造期间没有`enable_shared_from_this`可使用的shared_ptr。
+这里需要注意两点，一是不要直接使用this指针构造shared_ptr，而应使用标准库中提供的`std::enable_shared_from_this`类模板返回指向当前对象的shared_ptr指针，因为使用原始指针创建shared_ptr无法共享(会构造新的控制模块，而不会增加引用计数)，且会造成内存重复释放(double delete)；二是`shared_from_this()`不能在构造函数中调用，因为`enable_shared_from_this`的工作原理是使用第一个shared_ptr的副本初始化一个隐藏的weak_ptr，该副本指向该对象，因此在构造函数执行期间，该对象还不存在，而若使shared_ptr指向该对象，该对象必须存在(已经构造)，所以构造期间没有`enable_shared_from_this`可使用的shared_ptr。
+
+当然，此处还存在一个问题，因为将shared_ptr传递给了仿函数，虽然保证了回调的时候StockFactroy对象一定存在，但StockFactory的生命周期似乎被意外的延长了，使其不短于绑定了仿函数的Stock对象。
+
+有时候我们需要，如果对象还活着，就调用它的成员函数，否则忽略的语义。称之为"弱回调"。
+
+### 弱回调
