@@ -327,7 +327,7 @@ class StockFactory {
 
 ```cpp
 std::lock_guard lock(mutex_);
-stocks_erase(stock->key());
+stocks_.erase(stock->key());
 ```
 
 race condition发生在函数进入`DeleteStock`后，在`lock`前，有线程B调用了相同`key`的`StockFactory::Get()`，此时的weak_ptr已经无法提升了，所以会有一个新的Stock对象被创建，而`DeleteStock`的析构才刚刚开始，此时内存中存在两个具有相同key的Stock对象，`DeleteStock`要删除其对象，但不应删除map中的key，否则若再有线程C调用了相同`key`的`StockFactory::Get()`，因map中的key已经被删除，又会构造一个新的Stock对象，导致线程B和线程C分别持有两个key相同的不同对象。
@@ -357,3 +357,59 @@ p_stock.reset(new Stock(key),
 我们可以利用weak_ptr实现该语义，将weak_ptr绑到仿函数中，这样对象的生命周期不会被延长。在回调的时候先尝试提升为shared_ptr，如果成功，说明对象还存在，如果失败，则忽略。
 
 使用这一技术的完整StockFactory代码如下：
+
+```cpp
+#define DISALLOW_COPY_AND_ASSIGN(ClassName) \
+    ClassName (const ClassName&) = delete;      \
+    ClassName operator=(const ClassName&) = delete;
+
+class Stock {
+ public:
+  Stock(const std::string &name)
+	  : name_(name) {}
+
+  const std::string key() const {
+	return name_;
+  }
+
+ private:
+  std::string name_;
+};
+
+class StockFactory : std::enable_shared_from_this<StockFactory> {
+ public:
+  std::shared_ptr<Stock> get(const std::string &key) {
+	std::shared_ptr<Stock> p_stock;
+	std::lock_guard lock(mutex_);
+	std::weak_ptr<Stock> &wk_stock = stocks_[key];
+	if (!p_stock) {
+	  p_stock.reset(new Stock(key),
+					[self = std::weak_ptr<StockFactory>(shared_from_this())](Stock *stock) { 
+		std::shared_ptr<StockFactory> factory(self.lock());
+		if(factory)
+		  factory->RemoveStock(stock);
+		delete stock;
+	  });
+	  wk_stock = p_stock;
+	}
+	return p_stock;
+  }
+
+ private:
+  void RemoveStock(Stock* stock){
+	if(stock){
+	  std::lock_guard lock(mutex_);
+	  auto it  = stocks_.find(stock->key());
+	  assert(it != stocks_.end());
+	  if(it->second.expired())
+		stocks_.erase(it);
+	}
+  }
+  std::mutex mutex_;
+  std::map<std::string, std::weak_ptr<Stock>> stocks_;
+
+  DISALLOW_COPY_AND_ASSIGN(StockFactory)
+};
+```
+
+这下完美了，无论Stock和StockFactory谁先挂掉都不会影响程序的正确运行。当然，通常Factory对象是个singleton，在程序正常运行期间都不会销毁，这里只是为了展示弱回调技术。
