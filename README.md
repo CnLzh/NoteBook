@@ -21,4 +21,4 @@ Learning Notes. All notes using C++ programming.
 
 
 ## Thanks
-:tada: These learning notes refer to a large number of books and network resources. Including but not limited to, 《C++ Primer》,《Effective C++》,《Inside the C++ Object Model》,《C++ Concurrency in action》,《Runinations on C++》,《Linux多线程服务端编程 使用muduo C++网络库》. The list is in no particular order. Thanks a lot. Thank these resources for help.
+:tada: These learning notes refer to a large number of books and network resources. Including but not limited to, 《C++ Primer》,《Effective C++》,《Inside the C++ Object Model》,《C++ Concurrency in action》,《Ruminations on C++》,《Linux多线程服务端编程 使用muduo C++网络库》. The list is in no particular order. Thanks a lot. Thank these resources for help.
