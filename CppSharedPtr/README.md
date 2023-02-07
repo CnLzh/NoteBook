@@ -355,3 +355,5 @@ p_stock.reset(new Stock(key),
 
 ### 弱回调
 我们可以利用weak_ptr实现该语义，将weak_ptr绑到仿函数中，这样对象的生命周期不会被延长。在回调的时候先尝试提升为shared_ptr，如果成功，说明对象还存在，如果失败，则忽略。
+
+使用这一技术的完整StockFactory代码如下：
