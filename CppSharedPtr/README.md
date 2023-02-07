@@ -412,4 +412,4 @@ class StockFactory : std::enable_shared_from_this<StockFactory> {
 };
 ```
 
-这下完美了，无论Stock和StockFactory谁先挂掉都不会影响程序的正确运行。当然，通常Factory对象是个singleton，在程序正常运行期间都不会销毁，这里只是为了展示弱回调技术。
+这下完美了，无论Stock和StockFactory谁先挂掉都不会影响程序的正确运行。当然，通常Factory对象是个singleton，在程序正常运行期间都不会销毁，这里只是为了展示弱回调技术。通用的弱回调封装见[此处](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr/src)。
