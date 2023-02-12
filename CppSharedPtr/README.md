@@ -413,3 +413,8 @@ class StockFactory : std::enable_shared_from_this<StockFactory> {
 ```
 
 这下完美了，无论Stock和StockFactory谁先挂掉都不会影响程序的正确运行。当然，通常Factory对象是个singleton，在程序正常运行期间都不会销毁，这里只是为了展示弱回调技术。通用的弱回调封装见[此处](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr/src/weak_callback.h)。
+
+## 小结
+- 使用shared_ptr管理对象的生命周期尤为重要。
+- shared_ptr是值语意，警惕拷贝导致的意外延长生命周期。
+- weak_ptr是shared_ptr的好搭档，可以用于解决循环引用，弱回调等。
