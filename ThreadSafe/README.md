@@ -90,4 +90,9 @@ class Observable{
 - 锁争用：Observable的三个成员函数都用了互斥同步，会导致`register和unregister`等待`notify`，而后者的执行时间是无法预期的，因为它同步回调了用户提供的`Update`函数。
 - 死锁：万一`Update`中调用了`(un)register`，如果`mutex_`是不可重入的，会造成死锁；如果是可重入的，会造成迭代器失效。
 
-关于shared_ptr的更多注意事项，可以参考[此处](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr)。
+关于shared_ptr的技术与陷阱，可以参考[此处](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr)。
+
+### 解决Observer的问题
+Observer模式的主要问题在于其面向对象的设计。因为Observer是基类，带来了非常强的耦合，限制了成员函数的名字、参数、返回值，还限制了成员函数的类型(必须是Observer的派生类)。而且若FOO想同时观察两个类型的事件，则需要多继承，这无疑是糟糕的。在现代C++中，我们可以通过Signal/Slots的方式绕过Observer的限制，完全解决上述遗留的疑点，其实现借助了使用`std::function和std::bind`取代虚函数的思想。
+
+Signal/Slots本质上就是Observer模式，主体收到某个signal后，通知对应的观察者(调用对应的slots)。
