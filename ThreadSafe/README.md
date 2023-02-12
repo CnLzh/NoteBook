@@ -95,4 +95,4 @@ class Observable{
 ### 解决Observer的问题
 Observer模式的主要问题在于其面向对象的设计。因为Observer是基类，带来了非常强的耦合，限制了成员函数的名字、参数、返回值，还限制了成员函数的类型(必须是Observer的派生类)。而且若FOO想同时观察两个类型的事件，则需要多继承，这无疑是糟糕的。在现代C++中，我们可以通过Signal/Slots的方式绕过Observer的限制，完全解决上述遗留的疑点，其实现借助了使用`std::function和std::bind`取代虚函数的思想。
 
-Signal/Slots本质上就是Observer模式，主体收到某个signal后，通知对应的观察者(调用对应的slots)。其完整实现代码见[此处](https://github.com/CnLzh/NoteBook/tree/main/ThreadSafe/src/SignalSlot.h)。
+Signal/Slots本质上就是Observer模式，主体收到某个signal后，通知对应的观察者(调用对应的slots)。其完整实现代码见[此处](https://github.com/CnLzh/NoteBook/tree/main/ThreadSafe/src/signal_slot.h)。
