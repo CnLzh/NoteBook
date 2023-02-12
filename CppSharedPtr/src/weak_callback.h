@@ -1,6 +1,8 @@
+// Copyright (C) 2023
 //
-// Created by cnlzh on 2023/2/8.
-//
+// File:     weak_callback.h
+// Brief:    Declares the WeakCallBack class.
+// Author:   CnLzh
 
 #ifndef SRC_WEAK_CALLBACK_H_
 #define SRC_WEAK_CALLBACK_H_
