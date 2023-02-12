@@ -1,5 +1,5 @@
 // Copyright (c) 2023
-// File:    SignalSlot.h
+// File:    signal_slot.h
 // Brief:   Definition the SignalImpl, Signal, Slot class.
 // Author:  cnlzh
 
