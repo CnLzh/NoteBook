@@ -6,6 +6,8 @@ Learning Notes. All notes using C++ programming.
 
 [C++ Template MetaProgramming](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes)
 
+[C++ "this" Pointer](https://github.com/CnLzh/NoteBook/tree/main/CppThisPointer)
+
 [CSAPP Book Note](https://github.com/CnLzh/NoteBook/tree/main/CSAPP)
 
 [Design Pattern](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern)
