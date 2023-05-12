@@ -18,7 +18,7 @@ cv::Mat NearestInterpolation(const cv::Mat &input, int width, int height) {
   for (int y = 0; y < dst_h; y++) {
 	for (int x = 0; x < dst_w; x++) {
 	  // 当前点在源图像中的几何中心位置
-	  float src_x = ((float)x) * scale_w;
+	  float src_x = ((float)x + 0.5f) * scale_w - 0.5f;
 	  float src_y = ((float)y + 0.5f) * scale_h - 0.5f;
 
 	  // 取最临近的索引
