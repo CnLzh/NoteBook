@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.24.2)
 project(digital_image_fundamentals)
 
 set(CMAKE_CXX_STANDARD 17)

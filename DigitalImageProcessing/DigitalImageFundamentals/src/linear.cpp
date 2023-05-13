@@ -68,7 +68,7 @@ int main() {
 
   // 显示结果
   cv::imshow("img", img);
-  cv::imshow("img_nearest", img_linear);
+  cv::imshow("img_linear", img_linear);
   cv::imshow("test_linear", test_linear);
 
   while (cv::waitKey(0) != 27);
