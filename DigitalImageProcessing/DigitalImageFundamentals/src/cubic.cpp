@@ -52,49 +52,28 @@ cv::Mat CubicInterpolation(cv::Mat &input, int width, int height) {
 	  int x0 = int(floor(src_x));
 	  int y0 = int(floor(src_y));
 
-#if 1
-	  // 计算水平方向权重
-	  std::vector<float> wx(4);
-	  for (int i = 0; i < 4; i++) {
-		float dx = src_x - (float)(x0 + i);
-		wx[i] = CubicWeight(dx);
-	  }
-
-	  // 计算垂直方向权重
-	  std::vector<float> wy(4);
-	  for (int i = 0; i < 4; i++) {
-		float dy = src_y - (float)(y0 + i);
-		wy[i] = CubicWeight(dy);
-	  }
-#endif
-
-#if 0
 	  float dx = src_x - (float)x0;
 	  float dy = src_y - (float)y0;
 
 	  std::vector<float> wx = CubicWeightVec4(dx);
 	  std::vector<float> wy = CubicWeightVec4(dy);
-#endif
 
-#if 1
-	  x0 = std::max(0, std::min(x0, src_w - 1));
-	  y0 = std::max(0, std::min(y0, src_h - 1));
-#endif
+	  x0 = std::max(0, std::min(x0, src_w - 4));
+	  y0 = std::max(0, std::min(y0, src_h - 4));
+
 	  // 计算像素点的值
 	  cv::Vec3f result{0.0f, 0.0f, 0.0f};
 	  for (int j = 0; j < 4; j++) {
 		for (int i = 0; i < 4; i++) {
-		  int px = std::max(0, std::min(x0 + i - 1, src_w - 1));
-		  int py = std::max(0, std::min(y0 + j - 1, src_h - 1));
-		  cv::Vec3b pixel = input.at<cv::Vec3b>(py, px);
+		  cv::Vec3b pixel = input.at<cv::Vec3b>(y0 + j, x0 + i);
 		  float weight = wx[i] * wy[j];
 		  result += weight * cv::Vec3f(pixel[0], pixel[1], pixel[2]);
 		}
 	  }
-
 	  output.at<cv::Vec3b>(y, x) =
-		  cv::Vec3b(cvRound(result[0]), cvRound(result[1]), cvRound(result[2]));
-
+		  cv::Vec3b(std::max(0, std::min(cvRound(result[0]), 255)),
+					std::max(0, std::min(cvRound(result[1]), 255)),
+					std::max(0, std::min(cvRound(result[2]), 255)));
 	}
   }
   return output;
@@ -109,12 +88,12 @@ int main() {
 
   // 双立方插值 opencv
   cv::Mat img_cubic;
-  resize(img, img_cubic, cv::Size(img.cols * 2, img.rows * 2), 0, 0, cv::INTER_CUBIC);
+  resize(img, img_cubic, cv::Size(img.cols / 2, img.rows / 2), 0, 0, cv::INTER_CUBIC);
   resize(img_cubic, img_cubic, cv::Size(img_cubic.cols * 2, img_cubic.rows * 2), 0, 0, cv::INTER_CUBIC);
 
   // 双立方插值
   cv::Mat test_cubic;
-  test_cubic = CubicInterpolation(img, img.cols * 2, img.rows * 2);
+  test_cubic = CubicInterpolation(img, img.cols / 2, img.rows / 2);
   test_cubic = CubicInterpolation(test_cubic, test_cubic.cols * 2, test_cubic.rows * 2);
 
   // 显示结果
