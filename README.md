@@ -26,6 +26,8 @@ Learning Notes. All notes using C++ programming.
 
 [Thread Safe](https://github.com/CnLzh/NoteBook/tree/main/ThreadSafe)
 
+[Windows Named Pipes](https://github.com/CnLzh/NoteBook/tree/main/WindowsNamedPipes)
+
 ## Thanks
 
 :tada: These learning notes refer to a large number of books and network resources. Including but not limited to, 《C++ Primer》,《Effective C++》,《Inside the C++ Object Model》,《C++ Concurrency in action》,《Ruminations on C++》,《Linux多线程服务端编程 使用muduo C++网络库》. The list is in no particular order. Thank these resources for help.
