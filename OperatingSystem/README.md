@@ -5,3 +5,5 @@
 ## 目录
 
 [深入理解计算机系统](https://github.com/CnLzh/NoteBook/tree/main/OperatingSystem/CSAPP)
+
+[内存管理](https://github.com/CnLzh/NoteBook/tree/main/OperatingSystem/Memory)
