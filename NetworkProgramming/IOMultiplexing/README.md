@@ -29,7 +29,7 @@ I/O多路复用是指，在一个操作里同时监听多个输入输出源，�
 1. 数据准备阶段
 2. 内核空间复制回用户空间缓冲区阶段：
 
-![IO Model](/IOMultiplexing/images/IOmodel.png)
+![IO Model](./images/IOmodel.png)
 
 ## 关于同步/异步，阻塞/非阻塞
 
@@ -77,7 +77,7 @@ I/O多路复用就是通过一种机制，一个进程可以监控多个描述�
 4. 若有读写事件发生，返回大于0的正整数，由用户态判断哪些文件描述符可以被使用，并做对应处理。
 5. 若无读写事件发生，返回0，由`timeout`决定是等待固定时间进行下一次监听或是轮询。
 
-点击[此处](https://github.com/CnLzh/NoteBook/blob/main/IOMultiplexing/src/select/main.cpp)查看Linux下C++实现的select模型server完整示例。client可直接使用终端命令`nc -v server的IP地址 server监听的端口号`的方式进行连接，如`nc -v 127.0.0.1 9808`。
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/select/main.cpp)查看Linux下C++实现的select模型server完整示例。client可直接使用终端命令`nc -v server的IP地址 server监听的端口号`的方式进行连接，如`nc -v 127.0.0.1 9808`。
 
 通过对`select`的逻辑过程分析，可以发现`select`存在三个问题:
 
@@ -95,7 +95,7 @@ poll的实现和select非常相似，只是对文件描述符集合的描述方�
 - `nfds`：pollfd结构体数组的个数。
 - `timeout`：定时监控阻塞时间。
 
-点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/NetworkProgramming/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
 
 ### 3.epoll模型
 相比于select和poll，epoll最大的好处在于不会随监听的fd数量增长而降低效率，不存在随着并发量的提高出现性能明显下降的问题。
@@ -200,7 +200,7 @@ Reactor模式是高性能服务器常用的一种模式，是一种事件驱动�
 ### 1.单Reactor单线程
 单reactor单线程，意为对事件的监听和对事件的处理在同一线程。其模型图如下：
 
-![reactor_1](/IOMultiplexing/images/reactor_1.png)
+![reactor_1](./images/reactor_1.png)
 
 #### 执行流程
 1. reactor对象通过select/epoll的IO多路复用方式监听客户端请求事件。
@@ -221,7 +221,7 @@ Reactor模式是高性能服务器常用的一种模式，是一种事件驱动�
 ### 2.单Reactor多线程
 单reactor多线程，意为一个对事件的监听的线程和多个对事件处理的线程。其模型图如下：
 
-![reactor_2](/IOMultiplexing/images/reactor_2.png)
+![reactor_2](./images/reactor_2.png)
 
 #### 执行流程
 1. reactor对象通过select/epoll的IO多路复用方式监听客户端请求事件。
@@ -243,7 +243,7 @@ Reactor模式是高性能服务器常用的一种模式，是一种事件驱动�
 ### 3.主从Reactor多线程
 主从reactor多线程，意为多个对事件的监听线程和多个对事件处理的线程。其模型图如下：
 
-![reactor_3](/IOMultiplexing/images/reactor_3.png)
+![reactor_3](./images/reactor_3.png)
 
 #### 执行流程
 1. 主线程对象(Main Reactor)通过select/epoll的IO多路复用方式监听客户端连接请求，收到连接请求后，通过Accpetor处理连接事件。
