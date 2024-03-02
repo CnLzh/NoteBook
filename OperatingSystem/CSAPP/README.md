@@ -1,6 +1,6 @@
 # CSAPP Book Note
 
-《深入理解计算机系统》笔记。 :fireworks:
+《深入理解计算机系统》笔记。
 
 ## Table Of Contents
 
