@@ -1,6 +1,6 @@
 # 操作系统
 
-关于操作系统的笔记。 :desktop_computer:	
+操作系统相关原理。 :desktop_computer:	
 
 ## 目录
 

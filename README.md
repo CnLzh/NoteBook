@@ -6,6 +6,8 @@
 
 [C++ 编程语言](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming)
 
+[数据结构](https://github.com/CnLzh/NoteBook/tree/main/DataStructure)
+
 [网络编程](https://github.com/CnLzh/NoteBook/tree/main/NetworkProgramming)
 
 [多线程编程](https://github.com/CnLzh/NoteBook/tree/main/ThreadProgramming)
