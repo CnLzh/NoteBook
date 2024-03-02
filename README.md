@@ -1,33 +1,19 @@
-# NoteBook :notebook:
+# 笔记 :notebook:
 
-Learning Notes. All notes using C++ programming.
+编程生涯的学习笔记，大部分使用C++。
 
-## Table Of Contents
+## 目录
 
-[C++ Shared Ptr](https://github.com/CnLzh/NoteBook/tree/main/CppSharedPtr)
+[C++ 编程技巧](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming)
 
-[C++ Template MetaProgramming](https://github.com/CnLzh/NoteBook/tree/main/CppTMPNotes)
+[网络编程](https://github.com/CnLzh/NoteBook/tree/main/NetworkProgramming)
 
-[C++ "this" Pointer](https://github.com/CnLzh/NoteBook/tree/main/CppThisPointer)
+[多线程编程](https://github.com/CnLzh/NoteBook/tree/main/ThreadProgramming)
 
-[CSAPP Book Note](https://github.com/CnLzh/NoteBook/tree/main/CSAPP)
+[操作系统](https://github.com/CnLzh/NoteBook/tree/main/OperatingSystem)
 
-[Design Pattern](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern)
+[设计模式](https://github.com/CnLzh/NoteBook/tree/main/DesignPatten)
 
-[Digital Image Processing](https://github.com/CnLzh/NoteBook/tree/main/DigitalImageProcessing)
+[备忘录](https://github.com/CnLzh/NoteBook/tree/main/Memorandum)
 
-[Git Notes](https://github.com/CnLzh/NoteBook/tree/main/GitNotes)
-
-[I/O Multiplexing](https://github.com/CnLzh/NoteBook/tree/main/IOMultiplexing)
-
-[LeetCode Solutions](https://github.com/CnLzh/NoteBook/tree/main/LeetCodeNotes)
-
-[Thread Pool](https://github.com/CnLzh/NoteBook/tree/main/ThreadPool)
-
-[Thread Safe](https://github.com/CnLzh/NoteBook/tree/main/ThreadSafe)
-
-[Windows Named Pipes](https://github.com/CnLzh/NoteBook/tree/main/WindowsNamedPipes)
-
-## Thanks
-
-:tada: These learning notes refer to a large number of books and network resources. Including but not limited to, 《C++ Primer》,《Effective C++》,《Inside the C++ Object Model》,《C++ Concurrency in action》,《Ruminations on C++》,《Linux多线程服务端编程 使用muduo C++网络库》. The list is in no particular order. Thank these resources for help.
+[C++ 魔法](https://github.com/CnLzh/NoteBook/tree/main/MagicCode)

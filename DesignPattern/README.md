@@ -1,5 +1,7 @@
-# Design Pattern
-Common Design Patterns. :crystal_ball:
-## Table Of Contents
+# 设计模式
 
-[Observer](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern/Observer)
+常用设计模式笔记。
+
+## 目录
+
+[观察者模式](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern/Observer)
