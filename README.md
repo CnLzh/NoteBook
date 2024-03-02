@@ -12,7 +12,7 @@
 
 [操作系统](https://github.com/CnLzh/NoteBook/tree/main/OperatingSystem)
 
-[设计模式](https://github.com/CnLzh/NoteBook/tree/main/DesignPatten)
+[设计模式](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern)
 
 [备忘录](https://github.com/CnLzh/NoteBook/tree/main/Memorandum)
 
