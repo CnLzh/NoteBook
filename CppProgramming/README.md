@@ -9,3 +9,5 @@
 ["this"指针](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming/ThisPointer)
 
 [push和emplace的区别](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming/Push&Emplace)
+
+[移动语义和完美转发](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming/ForwardReferences)
