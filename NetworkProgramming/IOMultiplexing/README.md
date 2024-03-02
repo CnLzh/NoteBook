@@ -77,7 +77,7 @@ I/O多路复用就是通过一种机制，一个进程可以监控多个描述�
 4. 若有读写事件发生，返回大于0的正整数，由用户态判断哪些文件描述符可以被使用，并做对应处理。
 5. 若无读写事件发生，返回0，由`timeout`决定是等待固定时间进行下一次监听或是轮询。
 
-点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/select/main.cpp)查看Linux下C++实现的select模型server完整示例。client可直接使用终端命令`nc -v server的IP地址 server监听的端口号`的方式进行连接，如`nc -v 127.0.0.1 9808`。
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/select/main.cc)查看Linux下C++实现的select模型server完整示例。client可直接使用终端命令`nc -v server的IP地址 server监听的端口号`的方式进行连接，如`nc -v 127.0.0.1 9808`。
 
 通过对`select`的逻辑过程分析，可以发现`select`存在三个问题:
 
@@ -95,7 +95,7 @@ poll的实现和select非常相似，只是对文件描述符集合的描述方�
 - `nfds`：pollfd结构体数组的个数。
 - `timeout`：定时监控阻塞时间。
 
-点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/poll/main.cc)查看Linux下C++实现的poll模型server完整示例。
 
 ### 3.epoll模型
 相比于select和poll，epoll最大的好处在于不会随监听的fd数量增长而降低效率，不存在随着并发量的提高出现性能明显下降的问题。
@@ -173,7 +173,7 @@ LT：只要事件没处理完，每一次`epoll_wait`都触发该事件。
 3. `epoll_wait`仅关注就绪队列是否为空，不需要遍历事件集合。
 4. 向内核中断注册回调函数，一旦有事件触发，由回调将事件对应节点添加到就绪队列中，时间复杂度仅为O(1)。
 
-点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/epoll/main.cpp)查看Linux下C++实现的epoll模型server完整示例。
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/epoll/main.cc)查看Linux下C++实现的epoll模型server完整示例。
 
 #### epoll的同步阻塞和同步非阻塞
 我们已知IO多路复用一定是同步的，那么如何决定使用阻塞还是非阻塞的方式呢？
