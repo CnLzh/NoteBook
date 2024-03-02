@@ -53,7 +53,7 @@ int main()
 
 ### ROV优化
 
-在现代编译器中，`ROV (return value optimization)`技术对于某些情况下函数的返回值会进行优化，用移动语义代替拷贝或赋值以提高性能。例如:
+在现代编译器中，`ROV (return value optimization)`技术对于某些情况下函数的返回值会进行优化，用移动语义代替拷贝或赋值以提高性能。例如：
 
 ```cpp
 vector<int> ReturnVector()
