@@ -95,7 +95,7 @@ poll的实现和select非常相似，只是对文件描述符集合的描述方�
 - `nfds`：pollfd结构体数组的个数。
 - `timeout`：定时监控阻塞时间。
 
-点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/NetworkProgramming/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
+点击[此处](https://github.com/CnLzh/NoteBook/blob/main/NetworkProgramming/IOMultiplexing/src/poll/main.cpp)查看Linux下C++实现的poll模型server完整示例。
 
 ### 3.epoll模型
 相比于select和poll，epoll最大的好处在于不会随监听的fd数量增长而降低效率，不存在随着并发量的提高出现性能明显下降的问题。
