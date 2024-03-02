@@ -4,4 +4,4 @@
 
 ## 目录
 
-[跳表](https://github.com/CnLzh/NoteBook/tree/main/DataStructure/SkipList)q
+[跳表](https://github.com/CnLzh/NoteBook/tree/main/DataStructure/SkipList)
