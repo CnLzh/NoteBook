@@ -22,11 +22,11 @@
 
 ```cpp
 void Func(int&) {
-    cout << "左值"<< std::endl;
+    std::cout << "左值"<< std::endl;
 }
 
 void Func(int&&) {
-    cout << "右值"<< std::endl;
+    std::cout << "右值"<< std::endl;
 }
 
 template<typename T>
@@ -53,7 +53,7 @@ int main()
 
 ### ROV优化
 
-在现代编译器中，`ROV (return value optimization)`技术对于某些情况下函数的返回值会进行优化，用移动语义代替拷贝或赋值以提高性能。例如:
+在现代编译器中，`ROV (return value optimization)`技术对于某些情况下函数的返回值会进行优化，用移动语义代替拷贝或赋值以提高性能。例如：
 
 ```cpp
 vector<int> ReturnVector()
@@ -101,7 +101,7 @@ void Example(T&& ex) {}
 
 对于以上四种情况，折叠规则为：
 
-`任意引用为左值引用时，将被推导为左值；仅当两个都为右值引用时，将被推导为右值。`
+`任意引用为左值引用时，将被推导为左值；仅当两个都为右值引用时，才会被推导为右值。`
 
 即只有`右值-右值 T&& &&`情况下会被推导为右值引用，其他情况均视为左值引用。
 
@@ -111,16 +111,16 @@ void Example(T&& ex) {}
 
 ```cpp
 void Func(int&) {
-    cout << "左值";
+    std::cout << "左值" << std::endl;
 }
 
 void Func(int&&) {
-    cout << "右值";
+    std::cout << "右值" << std::endl;
 }
 
 template<typename T>
 void Example(T&& v) {
-    Func(forward<T>(v));
+    Func(std::forward<T>(v));
 }
 
 int main()
@@ -130,7 +130,7 @@ int main()
 }
 ```
 
-上述程序运行结果为右值。完美转发在传递过程中保持其左值或右值的属性不变。
+上述程序运行结果为右值。完美转发在传递参数的过程中保持其左值或右值的属性不变。
 
 以下提供一个简易的程序用于理解`std::forward`的实现原理：
 
