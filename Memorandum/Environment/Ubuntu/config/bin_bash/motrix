@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup ~/App/Motrix-1.8.19.AppImage > /dev/null 2>&1 &

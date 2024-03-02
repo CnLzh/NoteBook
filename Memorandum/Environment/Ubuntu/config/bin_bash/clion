@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup ~/App/clion-2023.2.2/bin/clion.sh > /dev/null 2>&1 &
