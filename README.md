@@ -4,7 +4,7 @@
 
 ## 目录
 
-[C++ 编程技巧](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming)
+[C++ 编程语言](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming)
 
 [网络编程](https://github.com/CnLzh/NoteBook/tree/main/NetworkProgramming)
 
@@ -16,4 +16,4 @@
 
 [备忘录](https://github.com/CnLzh/NoteBook/tree/main/Memorandum)
 
-[C++ 魔法](https://github.com/CnLzh/NoteBook/tree/main/MagicCode)
+[C++ 魔法代码](https://github.com/CnLzh/NoteBook/tree/main/MagicCode)
