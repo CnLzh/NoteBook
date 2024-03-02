@@ -7,3 +7,5 @@
 [智能指针](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming/SharedPtr)
 
 ["this"指针](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming/ThisPointer)
+
+[push和emplace的区别](https://github.com/CnLzh/NoteBook/tree/main/CppProgramming/Push&Emplace)
