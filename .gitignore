@@ -1,4 +1,8 @@
 # 忽略CLion生成的配置文件
 .idea/
+
 # 忽略build文件
 cmake-build-debug/
+
+# 忽略vscode
+.vscode/
