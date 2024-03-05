@@ -257,11 +257,11 @@ class simple_ptr {
 
 ### 定制析构功能
 
-shared_ptr具有定制析构功能，其构造函数可以有一个额外的模板类型参数，传入一个函数指针或者仿函数func，在析构对象时执行func(ptr)，其中ptr是shared_ptr保存的对象指针。
+shared_ptr具有定制析构功能，其构造函数可以有一个额外的模板类型参数，传入一个函数指针或者仿函数func，在析构对象时执行`func(ptr)`，其中ptr是shared_ptr保存的对象指针。
 
 假设存在Stock类，代表一只股票的价格，每支股票有一个唯一的字符串表示。Stock是一个主动对象，能不断获取新价格。为了节约系统资源，同一个程序里每个出现的股票只有一个Stock对象，如果多处用到同一只股票，那么Stock对象应该被共享。如果这个股票没有在任何地方用到，其对应的Stock对象应该析构，以释放资源。
 
-根据以上要求，我们设计一个对象池StockFactory。接口很简单，根据key返回Stock对象。在多线程程序中，对象可能被销毁，那么返回shared_ptr是合理的，我们写出如下代码(错的)。
+根据以上要求，我们设计一个对象池StockFactory。接口很简单，根据key返回Stock对象。在多线程程序中，对象可能被销毁，那么返回shared_ptr是合理的，我们写出如下代码（错的）。
 
 ```cpp
 class StockFactory {
@@ -377,7 +377,7 @@ p_stock.reset(new Stock(key),
 			[self = shared_from_this()](Stock *stock) { self->deleteStock(stock); });
 ```
 
-这里需要注意两点，一是不要直接使用this指针构造shared_ptr，而应使用标准库中提供的`std::enable_shared_from_this`类模板返回指向当前对象的shared_ptr指针，因为使用原始指针创建shared_ptr无法共享(会构造新的控制模块，而不会增加引用计数)，且会造成内存重复释放(double delete)；二是`shared_from_this()`不能在构造函数中调用，因为`enable_shared_from_this`的工作原理是使用第一个shared_ptr的副本初始化一个隐藏的weak_ptr，该副本指向该对象，因此在构造函数执行期间，该对象还不存在，而若使shared_ptr指向该对象，该对象必须存在(已经构造)，所以构造期间没有`enable_shared_from_this`可使用的shared_ptr。
+这里需要注意两点，一是不要直接使用this指针构造shared_ptr，而应使用标准库中提供的`std::enable_shared_from_this`类模板返回指向当前对象的shared_ptr指针，因为使用原始指针创建shared_ptr无法共享（会构造新的控制模块，而不会增加引用计数），且会造成内存重复释放（double delete）；二是`shared_from_this()`不能在构造函数中调用，因为`enable_shared_from_this`的工作原理是使用第一个shared_ptr的副本初始化一个隐藏的weak_ptr，该副本指向该对象，因此在构造函数执行期间，该对象还不存在，而若使shared_ptr指向该对象，该对象必须存在（已经构造），所以构造期间没有`enable_shared_from_this`可使用的shared_ptr。
 
 当然，此处还存在一个问题，因为将shared_ptr传递给了仿函数，虽然保证了回调的时候StockFactroy对象一定存在，但StockFactory的生命周期似乎被意外的延长了，使其不短于绑定了仿函数的Stock对象。
 
