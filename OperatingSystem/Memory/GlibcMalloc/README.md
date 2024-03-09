@@ -183,7 +183,7 @@ large bin是由large chunk组成的循环双链表，其中large chunk指大于 
 
 - large bin在执行`malloc()`时，基本类似于small bin。额外要说的是，在large bin中查找时符合需求的chunk时，因为其chunk是有序的，所以只要通过每个large bin的chunk最大值，就可以判断该large bin是否能满足需求。若找到满足需求的large bin，则遍历找到第一个满足需求的chunk，若该chunk大于申请的内存空间，则将其拆分，一部分返回给用户进程，另一部分加入到unsorted bin中。
 
-- 与small bin相同，在执行`free()`时也会将与释放的chunk相邻的free chunk合并。
+- 与small bin相同，在执行`free()`时也会将相邻的free chunk合并，然后将其移除并添加到unsorted bin中。
 
 - 与small bin相同，large bin也通过Binmap提高检索效率。
 
