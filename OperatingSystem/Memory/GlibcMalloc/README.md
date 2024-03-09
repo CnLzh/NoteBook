@@ -96,3 +96,39 @@
 在了解`malloc()`是如何使用系统调用的以后，我们再从Arena，Bin，Chunk三个方面，分析`malloc()`内部的实现原理。
 
 ## malloc实现原理
+
+接下来，我们从Chunk，Bin，Arena，三部分来理解`malloc()`对内存分配与回收的过程。
+
+### Chunk
+
+chunk是glibc内存管理的最小单位。其总共分为四类：
+
+- allocated chunk：已经分配给用户进程，正在被使用的内存段。
+- free chunk：被用户进程释放，处于空闲的内存段。
+- top chunk：当前已分配内存块的最高地址处，可以快速追踪确定可用的内存范围。
+- last remainder chunk：内存分配过程中最后剩余的小块未分配内存，用于减少内存碎片和提高内存利用率。
+
+接下来，我们分别讨论每种类型的原理和用途。
+
+#### allocated chunk
+
+对于allocated chunk，其数据结构如下：
+
+
+
+#### free chunk
+
+#### top chunk
+
+#### last remainder chunk
+
+### Bin
+
+### Arena
+
+Arena是通过`brk()`或者`mmap()`系统调用为线程分配的堆内存区域，按线程的类型区分为两类：
+
+- main arena：主线程建立的arena
+- thread arena：子线程建立的arena
+
+
