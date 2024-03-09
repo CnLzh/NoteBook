@@ -121,7 +121,7 @@ thread arena是由子线程创建的，其内存分配流程如下：
 
 ### bin
 
-bin是管理chunk的数据结构，是以free chunk为节点组成的链表（关于free chunk的原理将在下文中详细介绍）。针对不同大小的free chunk，bin被分为fast bin，unsorted bin，small bin，large bin四种类型。
+bin是管理chunk的数据结构，是以free chunk为节点组成的链表（关于chunk的详细内容将在下文中介绍）。针对不同大小的free chunk，bin被分为fast bin，unsorted bin，small bin，large bin四种类型。
 
 #### fast bin
 
