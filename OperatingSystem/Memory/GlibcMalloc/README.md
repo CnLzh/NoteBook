@@ -97,9 +97,33 @@
 
 ## malloc实现原理
 
-接下来，我们从Chunk，Bin，Arena，三部分来理解`malloc()`对内存分配与回收的过程。
+接下来，我们从arena，bin，chunk三部分来理解`malloc()`对内存分配与回收的过程。
 
-### Chunk
+### arena
+
+arena是通过`brk()`或者`mmap()`系统调用为线程分配的堆内存区域，按线程的类型区分为main arena和thread arena两类。
+
+#### main arena
+
+main arena是由主线程创建的，其内存分配流程如下：
+
+![arena_01](./images/arena_01.png)
+
+#### thread arena
+
+thread arena是由子线程创建的，其内存分配流程如下：
+
+![arena_02](./images/arena_02.png)
+
+这里要注意，arena和线程并不是一一映射的关系，实际上arena的数量取决于系统CPU核数，在64位操作系统中，往往是`8 * number of cores`。
+
+所以，多个线程共享同一个arena的现象是存在的，其通过锁的方式来保证线程安全。当线程调用`malloc()`申请内存时，会遍历寻找可用的arena并其尝试加锁，加锁失败则`malloc()`被阻塞，直到arena可用为止。
+
+### bin
+
+bin是管理chunk的数据结构，是以free chunk为节点组成的链表（关于free chunk的原理将在下文中详细介绍）。针对不同大小的free chunk，bin被分为fast bin，unsorted bin，small bin，large bin四种类型。
+
+### chunk
 
 chunk是glibc内存管理的最小单位。其总共分为四类：
 
@@ -114,21 +138,28 @@ chunk是glibc内存管理的最小单位。其总共分为四类：
 
 对于allocated chunk，其数据结构如下：
 
+![allocated_chunk_01](./images/allocated_chunk_01.png)
 
+- prev_size：如果前一个是free chunk，则保存前一个chunk大小。如果前一个是allocated chunk，则保存用户数据大小。
+
+- chunk_size：因为每个chunk的大小是8的整数倍，因此chunk_size的后三位是无用的。为了高效利用内存，其后三位作为标志位，其中P用于表示chunk是否位allocated chunk。M用于表示该chunk是否通过系统调用申请的，如果是，该chunk不再由后续介绍的内存管理数据结构来标记，可以简化申请和释放的流程。N用于表示该chunk是否属于主分分配区，关于该部分，将在下文中详细介绍。
+
+- padding：用于内存对齐，保证chunk是8的整数倍。
 
 #### free chunk
 
+对于free chunk，其数据结构如下：
+
+![allocated_chunk_02](./images/allocated_chunk_02.png)
+
+- fd：指向当前chunk在同一个bin的下一个chunk的指针。
+- bk：指向当前chunk在同一个bin的上一个chunk的指针。
+
 #### top chunk
+
+当一个chunk处于一个arena的最顶部，即内存最高地址处，称之为top chunk。该chunk不属于任何bin。若当前所有的free chunk都无法满足应用进程申请的内存大小时，如果top chunk满足要求，则将其拆分为二，一部分用于给应用进程分配内存，余下的部分作为新的top chunk；否则，就需要扩展堆内存空间，使用系统调用申请新的内存空间了。
 
 #### last remainder chunk
 
-### Bin
-
-### Arena
-
-Arena是通过`brk()`或者`mmap()`系统调用为线程分配的堆内存区域，按线程的类型区分为两类：
-
-- main arena：主线程建立的arena
-- thread arena：子线程建立的arena
 
 
