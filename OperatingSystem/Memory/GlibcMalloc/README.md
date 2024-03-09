@@ -129,9 +129,9 @@ fast bin是由fast chunk组成的单链表，其中fast chunk指大小为 16 ~ 8
 
 - fast bin共有 10 个。
 
-- 每个都维护一个单链表，只是用fd指针，采用LIFO(后入先出)的方式，添加和删除操作都直接对链表头操作。
+- 每个fast bin都维护一个单链表，采用LIFO(后入先出)的方式，添加和删除操作都直接对链表头操作。
 
-- fast bin管理的chunk大小是8字节递增的。即`fast bin[0]`维护大小为 16 字节的chunk，`fast bin[1]`维护大小为24字节的chunk，以此类推。
+- fast bin管理的chunk大小是8字节递增的。即`fast bin[0]`维护大小为 16 字节的chunk，`fast bin[1]`维护大小为 24 字节的chunk，以此类推。
 
 - 在一个fast bin链表中，所有chunk的大小相同。
 
@@ -139,9 +139,9 @@ fast bin是由fast chunk组成的单链表，其中fast chunk指大小为 16 ~ 8
 
 - fast bin在开始时是空的。也就是说，在首次执行`malloc()`时，即使申请的内存大小落在fast bin的内存范围内，也不会由fast bin处理，而是向下传递交给small bin处理。
 
-- 在首次执行`malloc()`时，会执行`_init_malloc()`，此时会发现fast bin和small bin都为空，所以调用`malloc_consolidate()`进行初始化，该动作会先初始化除了fast bin以外所有的bin，最后初始化fast bin。然后当再次执行`malloc()`时，就可以使用fast bin了，系统将该chunk从对应的fast bin中删除，将地址返回给应用进程。
+- 在首次执行`malloc()`时，会执行`_init_malloc()`，此时会发现fast bin和small bin都为空，所以调用`malloc_consolidate()`进行初始化，该动作会初始化所有bin。然后当再次执行`malloc()`时，就可以使用fast bin了。在分配内存时，直接将对应的fast bin链表头的chunk移除，返回给应用进程。
 
-- 在执行`free()`时，根据chunk获取该chunk所属的fast bin，直接将其添加进链表中即可。
+- 在执行`free()`时，根据chunk大小获取该chunk所属的fast bin，直接将其添加进链表中即可。
 
 #### unsorted bin
 
@@ -149,7 +149,7 @@ unsorted bin是由free chunk组成的循环双向链表，其对chunk的大小�
 
 - unsorted bin只有 1 个。
 
-- 当small chunk和large chunk释放时，不会被添加到各自的bin中，而是被添加到unsorted bin中，可以理解为是small bin和large bin的缓存。这是为了可以使malloc重新使用最近释放的chunk，从而消除寻找合适bin的时间开销，增加了内存分配的效率。
+- 当small chunk和large chunk释放时，不会被添加到各自的bin中，而是被添加到unsorted bin中，可以理解为是small bin和large bin的缓存。这是为了令malloc可以重新使用最近释放的chunk，从而避免了检索大小合适的bin带来的开销，增加了内存分配的效率。
 
 - 当进行内存分配时，如果在fast bin和small bin中都没找到合适的chunk，就会将unsorted bin中的chunk转移到small bin和large bin中。
 
@@ -163,11 +163,13 @@ small bin是由small chunk组成的循环双链表，其中small chunk指小于 
 
 - 在一个small bin中，所有的chunk大小相同。
 
-- 在small bin中，相邻的free chunk会被合并，减少了内存碎片的产生，也减慢了释放的速度。
+- 在small bin中，相邻的free chunk会被合并，减少了内存碎片的产生，不过也导致了更多的开销。
 
-- small bin在开始时也是空的。在首次执行`malloc()`时，即使进程申请的内存大小落在small bin的内存范围内，也是交由unsorted bin处理，直到其初始化完成。另外，如果unsorted bin也无法满足要求，则继续在large bin中查找，若依旧不满足，则使用top chunk，若top chunk也不满足，就扩充top chunk令其满足。
+- small bin在开始时也是空的，与fast bin类似。在首次执行`malloc()`时，即使进程申请的内存大小落在small bin的内存范围内，也是交由unsorted bin处理，直到其初始化完成。另外，如果unsorted bin也无法满足要求，则继续在large bin中查找，若依旧不满足，则使用top chunk分配，若top chunk也不满足，就扩充top chunk令其满足。
 
 - 在执行`free()`时，会检查该chunk和相邻的chunk是否可以合并，然后将其从small bin中移除，添加到unsorted bin中。
+
+- 另外，由于bin的个数较多，glibc设计了Binmap用于记录各个bin中是否为空，检索过程中会跳过空的bin以增加检索速度。
 
 #### large bin
 
@@ -175,15 +177,15 @@ large bin是由large chunk组成的循环双链表，其中large chunk指大于 
 
 - large bin共有 63 个。
 
-- 与前面不同的是，在一个large bin中，其维护的chunk大小可以不同，而是处在一个区间内。在63个large bin中，前32个chunk以 64 字节递增，即`large chunk[0]`维护大小为 512 ~ 575 字节的chunk，`large chunk[1]`维护大小为 576 ~ 639 字节chunk。在32个chunk后的16个bin则以 4096 字节递增，再后的4个chunk以 32768 字节递增，剩下的所有chunk则放在最后一个large bin中。
+- 在一个large bin中，其维护的chunk大小可以不同，而是处在一个区间内。在63个large bin中，前32个chunk以 64 字节递增，即`large chunk[0]`维护大小为 512 ~ 575 字节的chunk，`large chunk[1]`维护大小为 576 ~ 639 字节的chunk；在前32个bin后的16个bin维护的chunk以 4096 字节递增；再后的4个bin维护的chunk以 32768 字节递增；剩下的所有chunk则放在最后一个large bin中。
 
-- 因为一个large bin中所有的chunk不一定相同，所以会将其按照chunk的大小排列，以加快内存分配和释放的速度。
-
-- 在一个large bin中，相邻的free chunk也会被合并。
+- 因为一个large bin中所有的chunk不一定相同，所以会将其按照chunk的大小排列，以加快检索的速度。
 
 - large bin在执行`malloc()`时，基本类似于small bin。额外要说的是，在large bin中查找时符合需求的chunk时，因为其chunk是有序的，所以只要通过每个large bin的chunk最大值，就可以判断该large bin是否能满足需求。若找到满足需求的large bin，则遍历找到第一个满足需求的chunk，若该chunk大于申请的内存空间，则将其拆分，一部分返回给用户进程，另一部分加入到unsorted bin中。
 
-- 另外，由于large bin的个数较多，glibc设计了Binmap用于记录各个bin中是否为空，检索过程中会跳过空的bin以增加检索速度。
+- 与small bin相同，在执行`free()`时也会将与释放的chunk相邻的free chunk合并。
+
+- 与small bin相同，large bin也通过Binmap提高检索效率。
 
 ### chunk
 
