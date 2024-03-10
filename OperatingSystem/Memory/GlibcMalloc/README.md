@@ -119,7 +119,9 @@ thread arena是由子线程创建的，其内存分配流程如下：
 
 另外，main arena中不会存在多个heap。但thread arena虽然开始时只有一个heap，但当heap空间不足时，会创建新的heap，也就是说thread arena中可能存在多个heap段，以单链表的形式管理。
 
-这里要注意，arena和线程并不是一一映射的关系，实际上arena的数量取决于系统CPU核数，在64位操作系统中，往往是`8 * number of cores`。
+所以，main arena中不存在heap_info结构，但是thread arena需要heap_info结构管理多个heap。其通过`ar_ptr`指针维护单链表，当创建了一个新的heap加入到thread arena时，旧的heap中的top chunk会被修改为free chunk。也就是说，只有处于链表头的heap中拥有top chunk。
+
+这里还要注意，arena和线程并不是一一映射的关系，实际上arena的数量取决于系统CPU核数，在64位操作系统中，往往是`8 * number of cores`。
 
 所以，多个线程共享同一个arena的现象是存在的，其通过锁的方式来保证线程安全。当线程调用`malloc()`申请内存时，会遍历寻找可用的arena并其尝试加锁，加锁失败则`malloc()`被阻塞，直到arena可用为止。
 
