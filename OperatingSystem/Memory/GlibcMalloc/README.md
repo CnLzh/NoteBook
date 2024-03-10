@@ -4,6 +4,8 @@
 
 在早期Linuxx系统里，使用dlmalloc做为默认的内存分配器。而ptmalloc2来自于dlmalloc的分支，并在其基础上添加了线程支持，成为了现代Linux系统默认的内存分配器集成到glibc中。
 
+实际上来自google的tcmalloc和facebook的jemalloc，在性能上都远远超过ptmalloc2。
+
 ## 内存布局
 
 在32位和64位操作系统中，内存布局是不同的。在描述详细的内存布局前，先了解几个基本概念：
@@ -115,6 +117,8 @@ thread arena是由子线程创建的，其内存分配流程如下：
 
 ![arena_02](./images/arena_02.png)
 
+另外，main arena中不会存在多个heap。但thread arena虽然开始时只有一个heap，但当heap空间不足时，会创建新的heap，也就是说thread arena中可能存在多个heap段，以单链表的形式管理。
+
 这里要注意，arena和线程并不是一一映射的关系，实际上arena的数量取决于系统CPU核数，在64位操作系统中，往往是`8 * number of cores`。
 
 所以，多个线程共享同一个arena的现象是存在的，其通过锁的方式来保证线程安全。当线程调用`malloc()`申请内存时，会遍历寻找可用的arena并其尝试加锁，加锁失败则`malloc()`被阻塞，直到arena可用为止。
@@ -187,6 +191,29 @@ large bin是由large chunk组成的循环双链表，其中large chunk指大于 
 
 - 与small bin相同，large bin也通过Binmap提高检索效率。
 
+#### 总结
+
+接下来，我们总结一下`malloc()`申请内存和`free()`内存释放的流程：
+
+- 内存申请
+
+1. 调用`malloc()`申请内存。
+2. 尝试对arena加锁，直到获取一个可用的arena，或在允许的情况下新建一个thread arena。
+3. 检查fast bin中的chunk是否满足需求，满足则return；否则进行下一步。
+4. 检查small bin中的chunk是否满足，满足则return；否则进行下一步。
+5. 将fast bin中空闲的chunk合并，放入unsorted bin中。然后遍历unsoretd bin中的chunk，如果其中的chunk满足申请的内存需求，将该chunk进行切割分配；否则根据chunk大小，将其放入small bin或large bin中，进行下一步。
+6. 检查large bin中的chunk是否满足，满足则return；否则进行下一步。
+7. 检查top chunk是否满足需求，满足则return；否则进行下一步。
+8. 调用系统调用申请内存，增加top chunk大小，从中切割处满足需求的chunk返回。
+
+- 内存释放
+1. 调用`free()`释放内存。
+2. 如果是通过mmap映射获得，直接取消映射。
+3. 如果能放入fast bin，放入其中。
+4. 如果与top chunk相邻，直接合并到top chunk；否则放入unsorted bin中。
+5. 如果top chunk的大小大于阈值，则触发收缩操作，将其归还给操作系统。
+6. 如果thread arena中出现了整块空闲的heap，将其归还给操作系统。
+
 ### chunk
 
 chunk是glibc内存管理的最小单位。其总共分为四类：
@@ -225,5 +252,13 @@ chunk是glibc内存管理的最小单位。其总共分为四类：
 
 #### last remainder chunk
 
+表示最后一次对small chunk分割后得到的剩余部分，用于改进引用局部性。也就是说后续对small chunk的malloc请求可能会被分配的彼此靠近。
 
+要如何理解这个概念呢？
+
+当应用进程申请的内存空间无法从small bin和unsorted bin中得到时，最终通过Binmap找到了满足条件的最小bin，我们将其分割两部分，一部分返回给用户，另一部分则作为last remainder chunk添加到unsorted bin中。
+
+当应用进程后续申请内存空间时，如果last remainder chunk是unsorted bin唯一的chunk，并且满足申请要求，那么会将其分割，一部分返回用户，另一部分则作为新的last remainder chunk保留在unsorted bin中。
+
+因此，应用进程后续申请内存得到的chunk会被分配的彼此靠近。
 
