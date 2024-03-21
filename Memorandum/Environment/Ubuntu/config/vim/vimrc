@@ -80,8 +80,6 @@ nnoremap e <C-u>
 
 nnoremap c <C-d>
 inoremap jk <ESC>
-vnoremap yy "+yy
-nnoremap yy "+yy
 
 nnoremap <leader>w :w<CR>
 nnoremap <leader>s :wq<CR>
