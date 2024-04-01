@@ -21,3 +21,11 @@ git是一个分布式版本控制系统，用于跟踪管理代码和文件的�
 `ssh -T git@github.com`
 
 提示`You've successfully authenticated, but GitHub does not provide shell access.`即为SSH关联成功。
+
+## Git子模块
+
+添加一个远程仓库项目xxx子模块到一个主仓库项目中：`git submodule add xxx` 
+
+执行更新子模块，同步远程仓库的内容：`git submodule update --init --recursive`
+
+可以查看`.gitmodules`中的内容，此处保存了子模块的信息。
