@@ -1,3 +1,0 @@
-#!/bin/bash
-
-nohup ~/Qt/Tools/QtCreator/bin/qtcreator > /dev/null 2>&1 &

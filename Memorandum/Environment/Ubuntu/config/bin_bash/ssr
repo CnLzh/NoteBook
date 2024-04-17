@@ -1,2 +1,0 @@
-#!/bin/bash
-nohup ~/App/electron-ssr-0.2.7.AppImage > /dev/null 2>&1 &

@@ -18,8 +18,6 @@
 
 [设计模式](https://github.com/CnLzh/NoteBook/tree/main/DesignPattern)
 
-[备忘录](https://github.com/CnLzh/NoteBook/tree/main/Memorandum)
-
 [C++ 魔法代码](https://github.com/CnLzh/NoteBook/tree/main/MagicCode)
 
 [杂项](https://github.com/CnLzh/NoteBook/tree/main/Miscellaneous)

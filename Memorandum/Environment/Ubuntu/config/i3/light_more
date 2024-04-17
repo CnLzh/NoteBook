@@ -1,7 +1,0 @@
-# !/bin/bash
-
-current=$(xrandr --verbose | grep -i brightness | cut -f2 -d ' ')
-
-new=$(echo "$current + 0.1" | bc)
-
-xrandr --output eDP-1 --brightness $new
