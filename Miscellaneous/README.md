@@ -4,7 +4,7 @@
 
 [Git使用指南](https://github.com/CnLzh/NoteBook/tree/main/Miscellaneous/GitNotes)
 
-[CMake使用指南](https://github.com/CnLzh/NoteBook/tree/main/MiscellaneousCMakeNotes)
+[CMake使用指南](https://github.com/CnLzh/NoteBook/tree/main/Miscellaneous/CMakeNotes)
 
 [IEEE 754二进制浮点数计算](https://github.com/CnLzh/NoteBook/tree/main/Miscellaneous/IEEE754)
 

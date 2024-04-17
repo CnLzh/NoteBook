@@ -4,4 +4,4 @@
 
 ## 目录
 
-[Ubuntu个人配置](https://github.com/CnLzh/NoteBook/tree/main/Memorandum/Environment/Ubuntu)
+[Ubuntu个人配置](https://github.com/CnLzh/NoteBook/tree/main/Miscellaneous/Environment/Ubuntu)
