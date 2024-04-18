@@ -126,7 +126,7 @@ cmake_minimum_required (VERSION 3.28.4)
 project(HelloDynamicLib)
 
 # 添加动态库
-add_library(HelloDynamicLib SHARED mian.cc)
+add_library(HelloDynamicLib SHARED main.cc)
 ```
 
 使用`add_library`和`SHARED`关键字，就可以构建一个动态库。
@@ -141,7 +141,7 @@ cmake_minimum_required (VERSION 3.28.4)
 project(HelloDynamicLib)
 
 # 添加静态库
-add_library(HelloDynamicLib STATIC mian.cc)
+add_library(HelloDynamicLib STATIC main.cc)
 ```
 将`SHARED`关键字替换为`STATIC`关键字，就可以构建一个静态库。
 
