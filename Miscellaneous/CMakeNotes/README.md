@@ -111,3 +111,40 @@ target_include_directories(HelloCmake_2 PUBLIC ${PROJECT_SOURCE_DIR}/include_2)
 这样就可以实现每个不同的目标文件有不同的搜索路径，其中`${PROJECT_SOURECE_DIR}`是指这个项目的源目录，就是`CMakeLists.txt`所在的目录。
 
 另外，这里还有一个关键字`PUBLIC`，用来控制依赖项的使用范围，一共分为`PRIVATE, INTERFACE, PUBLIC`三种。但对于生成的目标文件是可执行文件的情况，三者没有明显区别。所以，我们将在下文的生成静态库和动态库部分中，详细介绍三者的作用和区别。
+
+### 构建最简单的静态库和动态库
+
+目标文件除了可执行文件以外，还包括静态库和动态库。
+
+构建动态库的方式如下：
+
+```
+# 指定CMAKE最低版本号
+cmake_minimum_required (VERSION 3.28.4)
+
+# 项目名称
+project(HelloDynamicLib)
+
+# 添加动态库
+add_library(HelloDynamicLib SHARED mian.cc)
+```
+
+使用`add_library`和`SHARED`关键字，就可以构建一个动态库。
+
+构建静态库的方式如下：
+
+```
+# 指定CMAKE最低版本号
+cmake_minimum_required (VERSION 3.28.4)
+
+# 项目名称
+project(HelloDynamicLib)
+
+# 添加静态库
+add_library(HelloDynamicLib STATIC mian.cc)
+```
+将`SHARED`关键字替换为`STATIC`关键字，就可以构建一个静态库。
+
+### 链接静态库和动态库
+
+构建了静态库或动态库后，还需要把库链接到可执行文件中。
