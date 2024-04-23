@@ -123,10 +123,10 @@ target_include_directories(HelloCmake_2 PUBLIC ${PROJECT_SOURCE_DIR}/include_2)
 cmake_minimum_required (VERSION 3.28.4)
 
 # 项目名称
-project(HelloDynamicLib)
+project(HelloLib)
 
 # 添加动态库
-add_library(HelloDynamicLib SHARED main.cc)
+add_library(HelloLib SHARED main.cc)
 ```
 
 使用`add_library`和`SHARED`关键字，就可以构建一个动态库。
@@ -138,13 +138,35 @@ add_library(HelloDynamicLib SHARED main.cc)
 cmake_minimum_required (VERSION 3.28.4)
 
 # 项目名称
-project(HelloDynamicLib)
+project(HelloLib)
 
 # 添加静态库
-add_library(HelloDynamicLib STATIC main.cc)
+add_library(HelloLib STATIC main.cc)
 ```
 将`SHARED`关键字替换为`STATIC`关键字，就可以构建一个静态库。
 
 ### 链接静态库和动态库
 
 构建了静态库或动态库后，还需要把库链接到可执行文件中。
+
+链接动态库和静态库的方式是一致的，使用`target_link_libraries`即可，例如：
+
+```
+# 指定CMAKE最低版本号
+cmake_minimum_required (VERSION 3.28.4)
+
+# 项目名称
+project(Hello)
+
+# 添加目标文件
+add_executable(Hello mian.cpp)
+
+# 添加动态/静态库
+target_link_libraries(Hello PRIVATE HelloLib)
+
+```
+
+我们知道，无论是动态库还是静态库，往往除了生成的库文件以外，还有对应的头文件。其中的头文件包含了库函数的声明，而库文件包含了库函数的实现。
+
+接下来，我们用一个完整的生成和链接动态库的例子，对`PRIVATE, INTERFACE, PUBLIC`三个关键字做详细解释。
+
