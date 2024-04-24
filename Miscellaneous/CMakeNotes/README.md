@@ -170,3 +170,42 @@ target_link_libraries(Hello PRIVATE HelloLib)
 
 接下来，我们用一个完整的生成和链接动态库的例子，对`PRIVATE, INTERFACE, PUBLIC`三个关键字做详细解释。
 
+```
+# 指定CMAKE最低版本号
+cmake_minimum_required (VERSION 3.28.4)
+
+# 项目名称
+project(Hello)
+
+# 创建一个动态库
+add_library( hello_shared_library SHARED src/hello_shared_library.cpp )
+
+# 指定动态库头文件搜索路径
+target_include_directories( hello_shared_library PUBLIC ${PROJECT_SOURCE_DIR}/include )
+
+# 添加目标执行文件
+add_executable(hello_exe src/main.cpp)
+
+# 指定执行文件头文件搜索路径
+target_include_directories( hello_exe PRIVATE ${PROJECT_SOURCE_DIR}/include )
+
+# 链接动态库
+target_link_libraries(hello_exe PRIVATE hello_shared_library)
+```
+
+我们在上述例子中，生成了一个`hello_shared_library`动态库和一个`hello_exe`可执行文件，其中`hello_exe`依赖`hello_shared_library`动态库。
+
+可以看到，在指定动态库和可执行文件的头文件搜索路径时，分别用了`PUBLIC`和`PRIVATE`关键字，其作用和区别如下。
+
+假设存在一个可执行文件`hello_project`，且存在`hello_world, hello, world`三个动态库。
+
+其中`hello_world`动态库依赖`hello, world`动态库，`hello_project`可执行文件依赖`hello_world`动态库。以下为三种关键字所表示的不同含义。
+
+- PRIVATE：  
+私有。如果我们在生成`hello_world`动态库时，在链接其依赖的`hello, world`动态库使用PRIVATE关键字，那么`hello_world`可以访问这两个动态库中的头文件和函数。而对于`hello_project`可执行文件，`hello, world`的头文件和函数是不可见的，不能直接访问`hello, world`的头文件和函数。
+
+- INTERFACE：  
+接口。如果我们在生成`hello_world`动态库时，在链接其依赖的`hello, world`动态库使用INTERFACE关键字，那么`hello_world`不能访问这两个动态库中的函数，而只能使用其头文件中包括的信息。而对于`hello_project`可执行文件，`hello, world`的头文件和函数是可见的，可以直接访问`hello, world`的头文件和函数。
+
+- PUBLIC：  
+公共。相当于`PRIVATE`和`INTERFACE`的组合。如果我们在生成`hello_world`动态库时，在链接其依赖的`hello, world`动态库使用PUBLIC关键字，那么`hello_world`可以访问这两个动态库中的头文件和函数。而对于`hello_project`可执行文件，`hello, world`的头文件和函数同样也是可见的，可以直接访问`hello, world`的头文件和函数。
